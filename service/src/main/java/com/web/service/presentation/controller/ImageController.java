@@ -30,7 +30,7 @@ public class ImageController {
     private final ImageService imageService;
 
     @GetMapping("/{filename}")
-    public ResponseEntity<Object> downloadFiles(@PathVariable("filename") String filename) throws IOException {
+    public ResponseEntity<Object> downloadFiles(@PathVariable("filename") String filename) {
         try{
             ImageResourceDTO imageFileResources = imageService.retrieveImage(filename);
             HttpHeaders httpHeaders = new HttpHeaders();
