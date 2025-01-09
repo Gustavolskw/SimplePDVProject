@@ -29,31 +29,31 @@ public class ProductService {
     private final ImageService imageService;
     private final ProductValidation productValidation;
 
-    public ProductResponseDTO createProduct(ProductCreationDTO product, MultipartFile image) {
+    public Product createProduct(ProductCreationDTO product, MultipartFile image) {
         productValidation.validateName(product.name());
         productValidation.validateDescription(product.description());
         productValidation.validatePrice(product.value());
         Product savedProduct = buildProductFromDTO(product, image);
         productRepository.save(savedProduct);
-        return new ProductResponseDTO(savedProduct);
+        return savedProduct;
     }
 
-    public List<ProductResponseDTO> findAllProducts() {
+    public List<Product> findAllProducts() {
         List<Product> products = productRepository.findAll();
         if(products.isEmpty())throw new ListEmptyException("Product list is empty");
-        return products.stream().map(ProductResponseDTO::new).toList();
+        return products;
     }
 
-    public ProductResponseDTO findProductById(Long id) {
+    public Product findProductById(Long id) {
         Optional<Product> product = productRepository.findById(id);
         if (product.isEmpty())throw new EntityNotFoundException("Product not found");
-        return new ProductResponseDTO(product.get());
+        return product.get();
     }
 
-    public List<ProductResponseDTO> findProductsByName(String name) {
+    public List<Product> findProductsByName(String name) {
         Optional<List<Product>> listProductsSerach = productRepository.findAllByNameLike(name);
         if(listProductsSerach.isEmpty())throw new ListEmptyException("Product list is empty");
-        return listProductsSerach.get().stream().map(ProductResponseDTO::new).toList();
+        return listProductsSerach.get();
     }
 
 

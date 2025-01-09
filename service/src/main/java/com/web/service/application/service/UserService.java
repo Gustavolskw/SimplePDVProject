@@ -29,20 +29,20 @@ public class UserService {
     private final UserDataValidation userDataValidation;
 
 
-    public List<UserResponseDTO> findAll() throws ListEmptyException {
+    public List<User> findAll() throws ListEmptyException {
         List<User> userList = userRepository.findAll();
         if (userList.isEmpty()) {
             // Throwing the ListEmptyException directly
             throw new ListEmptyException("User List is empty");
         }
         // Returning mapped list of UserResponseDTOs
-        return userList.stream().map(UserResponseDTO::new).toList();
+        return userList;
     }
 
-    public UserResponseDTO findById(Long id) {
+    public User findById(Long id) {
         Optional<User> user = userRepository.findById(id);
         if(user.isEmpty()) throw new EntityNotFoundException("User Not Found");
-        return new UserResponseDTO(user.get());
+        return user.get();
     }
 
     public List<UserResponseDTO> findByUsername(String username) {

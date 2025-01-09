@@ -5,6 +5,7 @@ import com.web.service.application.service.ProductService;
 import com.web.service.domain.exception.ListEmptyException;
 import com.web.service.domain.model.Product;
 import com.web.service.presentation.viewModel.ApiResponse;
+import com.web.service.presentation.viewModel.ProductResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,25 +21,25 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ApiResponse> createProduct(@RequestParam("image") MultipartFile image,
                                                      @Valid @RequestPart("product") ProductCreationDTO productCreationDTO) {
-        return ResponseEntity.ok().body(new ApiResponse("Produto inserido com sucesso!", productService.createProduct(productCreationDTO, image)));
+        return ResponseEntity.ok().body(new ApiResponse("Produto inserido com sucesso!", new ProductResponseDTO(productService.createProduct(productCreationDTO, image))));
 
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse> getAllProducts() {
-            return ResponseEntity.ok().body(new ApiResponse("Lista de Produtos", productService.findAllProducts()));
+            return ResponseEntity.ok().body(new ApiResponse("Lista de Produtos", productService.findAllProducts().stream().map(ProductResponseDTO::new).toList()));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getProductById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok().body(new ApiResponse("Produto encontrado", productService.findProductById(id)));
+        return ResponseEntity.ok().body(new ApiResponse("Produto encontrado", new ProductResponseDTO(productService.findProductById(id))));
     }
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse> searchProductsByParam(
             @RequestParam(name = "name", required = false) String name,
             @RequestParam(name = "description", required = false) String description) {
-        return ResponseEntity.ok().body(new ApiResponse("Lista de Produtos Encontrados", productService.findProductsByName(name)));
+        return ResponseEntity.ok().body(new ApiResponse("Lista de Produtos Encontrados", productService.findProductsByName(name).stream().map(ProductResponseDTO::new).toList()));
     }
 
     @DeleteMapping("/{id}")
