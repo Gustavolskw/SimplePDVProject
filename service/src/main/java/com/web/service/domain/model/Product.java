@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.math.BigDecimal;
 
@@ -23,5 +25,7 @@ public class Product extends DefaultEntity{
     @Column(name = "image_url")
     private String imageUrl;
     private BigDecimal value;
+    @Column(name = "status", nullable = false)
+    private Boolean status;
 
 }

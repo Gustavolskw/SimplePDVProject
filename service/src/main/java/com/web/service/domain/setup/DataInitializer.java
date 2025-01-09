@@ -39,11 +39,14 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void createDefaultRoleIfNotExits(){
-        Role roleAdmin = new Role("ADMIN");
-        roleRepository.save(roleAdmin);
-        Role roleUser = new Role("GUIDER");
-        roleRepository.save(roleUser);
-
+        if(roleRepository.findByName("ADMIN").isEmpty()){
+            Role roleAdmin = new Role("ADMIN");
+            roleRepository.save(roleAdmin);
+        }
+        if(roleRepository.findByName("GUIDER").isEmpty()){
+            Role roleUser = new Role("GUIDER");
+            roleRepository.save(roleUser);
+        }
     }
 
     private void createDefaultAdminIfNotExits(){

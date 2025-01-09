@@ -28,4 +28,22 @@ public class ProductController {
     public ResponseEntity<ApiResponse> getAllProducts() {
             return ResponseEntity.ok().body(new ApiResponse("Lista de Produtos", productService.findAllProducts()));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse> getProductById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok().body(new ApiResponse("Produto encontrado", productService.findProductById(id)));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse> searchProductsByParam(
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "description", required = false) String description) {
+        return ResponseEntity.ok().body(new ApiResponse("Lista de Produtos Encontrados", productService.findProductsByName(name)));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse> deleteProduct(@PathVariable("id") Long id) {
+        productService.inactivateProduct(id);
+        return ResponseEntity.ok().body(new ApiResponse("Produto Inativado com sucesso", null));
+    }
 }

@@ -2,9 +2,11 @@ package com.web.service.application.service;
 
 import com.web.service.application.dto.ProductCreationDTO;
 import com.web.service.domain.exception.AlreadyExistsException;
+import com.web.service.domain.exception.EntityNotFoundException;
 import com.web.service.domain.exception.ListEmptyException;
 import com.web.service.domain.model.Product;
 import com.web.service.domain.repository.ProductRepository;
+import com.web.service.domain.validation.ProductValidation;
 import com.web.service.presentation.viewModel.ProductResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,27 +25,18 @@ import java.util.stream.Collectors;
 @Transactional
 public class ProductService {
 
-        private final ProductRepository productRepository;
-        private final ImageService imageService;
-
-
+    private final ProductRepository productRepository;
+    private final ImageService imageService;
+    private final ProductValidation productValidation;
 
     public ProductResponseDTO createProduct(ProductCreationDTO product, MultipartFile image) {
-        Product savedProduct = new Product();
-        savedProduct.setName(product.name());
-        savedProduct.setDescription(product.description());
-        savedProduct.setValue(product.value());
-        try{
-            String imageName = imageService.upload(image);
-            savedProduct.setImageUrl(imageName);
-        }catch (Exception e){
-            log.error(e.getMessage());
-            savedProduct.setImageUrl(null);
-        }
+        productValidation.validateName(product.name());
+        productValidation.validateDescription(product.description());
+        productValidation.validatePrice(product.value());
+        Product savedProduct = buildProductFromDTO(product, image);
         productRepository.save(savedProduct);
         return new ProductResponseDTO(savedProduct);
     }
-
 
     public List<ProductResponseDTO> findAllProducts() {
         List<Product> products = productRepository.findAll();
@@ -51,14 +44,39 @@ public class ProductService {
         return products.stream().map(ProductResponseDTO::new).toList();
     }
 
+    public ProductResponseDTO findProductById(Long id) {
+        Optional<Product> product = productRepository.findById(id);
+        if (product.isEmpty())throw new EntityNotFoundException("Product not found");
+        return new ProductResponseDTO(product.get());
+    }
 
-    private Product buildProductFromDTO(ProductCreationDTO productCreationDTO) {
+    public List<ProductResponseDTO> findProductsByName(String name) {
+        Optional<List<Product>> listProductsSerach = productRepository.findAllByNameLike(name);
+        if(listProductsSerach.isEmpty())throw new ListEmptyException("Product list is empty");
+        return listProductsSerach.get().stream().map(ProductResponseDTO::new).toList();
+    }
+
+
+    public void inactivateProduct(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        product.setStatus(false);
+        productRepository.save(product);
+    }
+
+    private Product buildProductFromDTO(ProductCreationDTO productCreationDTO, MultipartFile image) {
         Product product = new Product();
-        Optional<Product> prodt = productRepository.findByName(productCreationDTO.name());
-        if(prodt.isPresent())throw new AlreadyExistsException("Product already exists");
         product.setName(productCreationDTO.name());
         product.setDescription(productCreationDTO.description());
         product.setValue(productCreationDTO.value());
+        try{
+            String imageName = imageService.upload(image);
+            product.setImageUrl(imageName);
+        }catch (Exception e){
+            log.error(e.getMessage());
+            product.setImageUrl(null);
+        }
+        product.setStatus(true);
         return product;
     }
+
 }

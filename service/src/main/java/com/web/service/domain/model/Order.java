@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,8 +28,12 @@ public class Order extends DefaultEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "guide")
     private User guide;
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProductOrder> productList = new HashSet<>();
+    private Boolean status;
 
-
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @JoinTable(name = "product_order",
+            joinColumns = @JoinColumn(name = "order_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id")
+    )
+    private Collection<Product> productsOnOrder = new HashSet<>();
 }
