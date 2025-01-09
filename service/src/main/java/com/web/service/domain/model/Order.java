@@ -30,10 +30,12 @@ public class Order extends DefaultEntity{
     private User guide;
     private Boolean status;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
-    @JoinTable(name = "product_order",
-            joinColumns = @JoinColumn(name = "order_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id")
-    )
-    private Collection<Product> productsOnOrder = new HashSet<>();
+    //    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+//    @JoinTable(name = "product_order",
+//            joinColumns = @JoinColumn(name = "order_id", referencedColumnName = "id"),
+//            inverseJoinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id")
+//    )
+//    private Collection<Product> productsOnOrder = new HashSet<>();
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProductOrder> productsOnOrder = new HashSet<>();
 }

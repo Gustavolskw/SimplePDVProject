@@ -74,6 +74,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> UnprocessableAction(UnprocessableAction e) {
         return ResponseEntity.status(422).body(new ApiResponse(e.getMessage(),null) );
     }
+    @ExceptionHandler(OrderProcessError.class)
+    public ResponseEntity<ApiResponse> OrderProcessError(OrderProcessError e) {
+        return ResponseEntity.status(422).body(new ApiResponse(e.getMessage(),null) );
+    }
 
 
 }
