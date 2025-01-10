@@ -33,16 +33,22 @@ public class ProductOrderService {
         productOrderSel.setQuantity(productOrderSel.getQuantity() - 1);
     }
 
+    @Transactional
     public void adjustQuantityOnOrder(Long orderId, Long productId, Integer quantity) {
         ProductOrder productOrderSel = getPorductOrderByPorductAndOrder(orderId, productId);
         productOrderSel.setQuantity(quantity);
     }
 
     @Transactional
+    public void increaseQuantityOnOrder(Long orderId, Long productId) {
+        ProductOrder productOrderSel = getPorductOrderByPorductAndOrder(orderId, productId);
+        productOrderSel.setQuantity(productOrderSel.getQuantity() + 1);
+    }
+
+    @Transactional
     public void excludeProduct(Long orderId,Long productId) {
       productOrderRepository.deleteByOrderIdAndProductId(orderId,productId);
     }
-
 
     private ProductOrder getPorductOrderByPorductAndOrder(Long orderId, Long productId){
         Optional<ProductOrder> prodductorder = productOrderRepository.findByOrderIdAndProductId(orderId, productId);
@@ -59,5 +65,4 @@ public class ProductOrderService {
         productOrder.setQuantity(quantity);
         return productOrder;
     }
-
 }

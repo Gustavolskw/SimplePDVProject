@@ -54,6 +54,10 @@ public class OrderValidationImpl implements OrderValidation {
         if(productId==null) throw new ValidationException("Product id deve ser preenchido");
         if(!productRepository.existsById(productId))throw new EntityNotFoundException("Produto inexistente!");
         if(productRepository.isValid(productId) != 1)throw new OrderProcessError("Produto Inválido!");
+    }
+
+    @Override
+    public void validateInsertProductOnOrder(Long productId, Long orderId) {
         Order orderRequested = orderRepository.findById(orderId).orElseThrow(()->new EntityNotFoundException("Order inexistente!"));
         Set<ProductOrder> productOrderList = orderRequested.getProductsOnOrder();
         productOrderList.forEach(productOrder -> {

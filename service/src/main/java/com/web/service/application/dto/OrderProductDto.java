@@ -1,4 +1,9 @@
 package com.web.service.application.dto;
 
-public record OrderProductDto(Long productId, Integer quantity) {
+import jakarta.validation.constraints.NotNull;
+
+public record OrderProductDto(
+        @NotNull
+        Long productId,
+        Integer quantity) {
 }

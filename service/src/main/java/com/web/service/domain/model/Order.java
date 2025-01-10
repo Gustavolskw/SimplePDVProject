@@ -1,15 +1,31 @@
 package com.web.service.domain.model;
 
+import com.web.service.presentation.viewModel.OrderSearchResult;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Collection;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+@SqlResultSetMapping(
+        name = "OrderSearchResultMapping",
+        classes = @ConstructorResult(
+                targetClass = OrderSearchResult.class,
+                columns = {
+                        @ColumnResult(name = "id", type = Long.class),
+                        @ColumnResult(name = "consumerName", type = String.class),
+                        @ColumnResult(name = "tableNumber", type = Integer.class),
+                        @ColumnResult(name = "guideName", type = String.class),
+                        @ColumnResult(name = "status", type = Boolean.class),
+                        @ColumnResult(name = "createdAt", type = LocalDateTime.class),
+                        @ColumnResult(name = "updatedAt", type = LocalDateTime.class)
+                }
+        )
+)
 @Entity
 @Table(name = "ORDERS")
 @Getter
@@ -29,13 +45,6 @@ public class Order extends DefaultEntity{
     @JoinColumn(name = "guide")
     private User guide;
     private Boolean status;
-
-    //    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
-//    @JoinTable(name = "product_order",
-//            joinColumns = @JoinColumn(name = "order_id", referencedColumnName = "id"),
-//            inverseJoinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id")
-//    )
-//    private Collection<Product> productsOnOrder = new HashSet<>();
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProductOrder> productsOnOrder = new HashSet<>();
 }

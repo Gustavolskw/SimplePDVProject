@@ -6,5 +6,6 @@ public interface OrderValidation {
     void ValidateConsumerName(String consumerName);
     void validateGuide(Long guide);
     void validateProductOnOrder(Long productId, Long id);
+    void validateInsertProductOnOrder(Long productId, Long id);
     void validateQuantityProductOrder(Integer quantityProductOrder);
 }
