@@ -19,10 +19,17 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse> createProduct(@RequestParam("image") MultipartFile image,
-                                                     @Valid @RequestPart("product") ProductCreationDTO productCreationDTO) {
+    public ResponseEntity<ApiResponse> createProduct(@RequestParam(value = "image", required = false) MultipartFile image,
+                                                     @Valid @RequestPart(value="product") ProductCreationDTO productCreationDTO) {
         return ResponseEntity.ok().body(new ApiResponse("Produto inserido com sucesso!", new ProductResponseDTO(productService.createProduct(productCreationDTO, image))));
 
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse> updateProduct(@PathVariable("id") Long id,
+                                                     @RequestParam(value="image", required = false) MultipartFile image,
+                                                     @Valid @RequestPart(value="product", required = false) ProductCreationDTO productCreationDTO) {
+            return ResponseEntity.ok().body(new ApiResponse("Produto atualizado com sucesso!", new ProductResponseDTO(productService.updateProduct(id, productCreationDTO, image))));
     }
 
     @GetMapping
@@ -37,8 +44,7 @@ public class ProductController {
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse> searchProductsByParam(
-            @RequestParam(name = "name", required = false) String name,
-            @RequestParam(name = "description", required = false) String description) {
+            @RequestParam(name = "name", required = false) String name) {
         return ResponseEntity.ok().body(new ApiResponse("Lista de Produtos Encontrados", productService.findProductsByName(name).stream().map(ProductResponseDTO::new).toList()));
     }
 
@@ -47,4 +53,6 @@ public class ProductController {
         productService.inactivateProduct(id);
         return ResponseEntity.ok().body(new ApiResponse("Produto Inativado com sucesso", null));
     }
+
+
 }

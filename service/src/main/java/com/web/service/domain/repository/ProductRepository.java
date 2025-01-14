@@ -16,4 +16,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query(nativeQuery = true, value = "SELECT status from products p where id=:productId")
     Integer isValid(@Param(value = "productId") Long productId);
 
+
+    @Query(nativeQuery = true, value = "SELECT * FROM CARDAPIO_LOJA.products p WHERE p.name LIKE :prodName")
+    Optional<List<Product>> searchProductsByParamName(@Param("prodName") String prodName);
+
+    boolean existsByProductTypeId(Long id);
 }
