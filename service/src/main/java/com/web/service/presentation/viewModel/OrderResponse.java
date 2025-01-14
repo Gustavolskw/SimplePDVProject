@@ -1,6 +1,7 @@
 package com.web.service.presentation.viewModel;
 
 import com.web.service.domain.model.Order;
+import com.web.service.domain.model.ProductOrder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ public record OrderResponse(Long orderId,
                             Boolean status,
                             BigDecimal totalValue,
                             Integer productsInOrder,
+                            Integer itemsQuantity,
                             LocalDateTime createdAt,
                             LocalDateTime updatedAt) {
     public OrderResponse(Order o){
@@ -28,6 +30,7 @@ public record OrderResponse(Long orderId,
                                         .multiply(BigDecimal.valueOf(productOrder.getQuantity()))
                 ).reduce(BigDecimal.ZERO, BigDecimal::add),
                 o.getProductsOnOrder().size(),
+                o.getProductsOnOrder().stream().map(ProductOrder::getQuantity).reduce(Integer::sum).orElse(0),
                 o.getCreatedAt(),
                 o.getUpdatedAt()
         );
