@@ -3,7 +3,6 @@ package com.web.service.application.service;
 import com.web.service.presentation.viewModel.ImageResourceDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
 import java.io.File;
@@ -54,19 +53,48 @@ public class ImageService {
         return UUID.randomUUID() + extensao;
     }
 
-    // Method to delete an image by its name
-    public boolean deleteImage(String imageName) {
+//    // Method to delete an image by its name
+//    public boolean deleteImage(String imageName) {
+//        // Construct the full path of the image
+//        String filePath = PASTA_UPLOAD + imageName;
+//        File file = new File(filePath);
+//
+//        // Check if the file exists and delete it
+//        if (file.exists()) {
+//            return file.delete();
+//        }
+//
+//        // Return false if the file does not exist
+//        return false;
+//    }
+
+    public void deleteImage(String imageName) {
         // Construct the full path of the image
-        String filePath = PASTA_UPLOAD + imageName;
+        String filePath = PASTA_UPLOAD + File.separator + imageName;
         File file = new File(filePath);
 
-        // Check if the file exists and delete it
-        if (file.exists()) {
-            return file.delete();
+        try {
+            // Check if the file exists
+            if (file.exists()) {
+                // Attempt to delete the file and handle the result
+                boolean isDeleted = file.delete();
+                if (!isDeleted) {
+                    // Handle the case where the file could not be deleted
+                    throw new RuntimeException("Failed to delete file: " + filePath);
+                }
+            }
+        } catch (SecurityException e) {
+            // Handle potential security exceptions
+            throw new RuntimeException("Permission denied to delete file: " + filePath, e);
+        } catch (Exception e) {
+            // Handle any other unexpected exceptions
+            throw new RuntimeException("An unexpected error occurred while deleting the file: " + filePath, e);
         }
+    }
 
-        // Return false if the file does not exist
-        return false;
+    public String updateImage(MultipartFile imagem, String oldImageName) throws IOException {
+        deleteImage(oldImageName);
+        return upload(imagem);
     }
 
 
