@@ -25,8 +25,8 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<ApiResponse> placeOrder(@Valid @RequestBody OrderPlacingDTO orderDto) {
-            orderService.placeOrder(orderDto);
-            return ResponseEntity.ok().body(new ApiResponse("Pedido adicionado com sucesso!", null));
+        orderService.placeOrder(orderDto);
+        return ResponseEntity.ok().body(new ApiResponse("Pedido adicionado com sucesso!", null));
     }
 
     @PostMapping("/{id}/include")
@@ -51,6 +51,18 @@ public class OrderController {
     public ResponseEntity<ApiResponse> adjustItemOrder(@PathVariable Long id, @Valid @RequestBody OrderProductDto orderProductDto){
         orderService.adjustProductOnOrder(id, orderProductDto);
         return ResponseEntity.ok().body(new ApiResponse("Quantidade de produto ajustado com sucesso!", null));
+    }
+
+    @PutMapping("/{id}/close")
+    public ResponseEntity<ApiResponse> closeOrder(@PathVariable Long id){
+        orderService.closeOrder(id);
+        return ResponseEntity.ok().body(new ApiResponse("Ordem  de Pedido finalizado com sucesso!", null));
+    }
+
+    @DeleteMapping("/{id}/cancel")
+    public ResponseEntity<ApiResponse> cancelOrder(@PathVariable Long id){
+        orderService.cancelOrder(id);
+        return ResponseEntity.ok().body(new ApiResponse("Ordem Cancelada com sucesso!", null));
     }
 
     @DeleteMapping("/{id}/remove/{prodtId}")

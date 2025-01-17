@@ -11,6 +11,7 @@ import com.web.service.domain.repository.OrderRepository;
 import com.web.service.domain.validation.OrderValidation;
 import com.web.service.presentation.viewModel.OrderResponse;
 import com.web.service.presentation.viewModel.OrderSearchResult;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -80,6 +81,18 @@ public class OrderService {
 
     public Page<Order> getAllOrders(Pageable pageable) {
         return orderRepository.findAll(pageable);
+    }
+    @Transactional
+    public void closeOrder(Long id) {
+        Order order = findById(id);
+        order.setStatus(false);
+    }
+    @Transactional
+    public void cancelOrder(Long id) {
+        Order order = findById(id);
+        orderValidation.validateToExclude(order);
+        productOrderService.orderHasBeenDeleted(id);
+        orderRepository.delete(order);
     }
 
     public Order buildOrder(OrderPlacingDTO orderDto, User guide) {

@@ -50,6 +50,11 @@ public class ProductOrderService {
       productOrderRepository.deleteByOrderIdAndProductId(orderId,productId);
     }
 
+    @Transactional
+    public void orderHasBeenDeleted(Long orderId){
+        productOrderRepository.deleteById_OrderId(orderId);
+    }
+
     private ProductOrder getPorductOrderByPorductAndOrder(Long orderId, Long productId){
         Optional<ProductOrder> prodductorder = productOrderRepository.findByOrderIdAndProductId(orderId, productId);
         if (prodductorder.isEmpty())throw new EntityNotFoundException("ordem de produto não encontrada");

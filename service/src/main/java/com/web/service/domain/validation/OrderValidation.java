@@ -1,5 +1,7 @@
 package com.web.service.domain.validation;
 
+import com.web.service.domain.model.Order;
+
 public interface OrderValidation {
     void validateOrder(Long id);
     void validateTable(Integer tableNumber);
@@ -8,4 +10,5 @@ public interface OrderValidation {
     void validateProductOnOrder(Long productId, Long id);
     void validateInsertProductOnOrder(Long productId, Long id);
     void validateQuantityProductOrder(Integer quantityProductOrder);
+    void validateToExclude(Order id);
 }

@@ -2,6 +2,7 @@ package com.web.service.domain.validation;
 
 import com.web.service.domain.exception.EntityNotFoundException;
 import com.web.service.domain.exception.OrderProcessError;
+import com.web.service.domain.exception.UnprocessableAction;
 import com.web.service.domain.exception.ValidationException;
 import com.web.service.domain.model.Order;
 import com.web.service.domain.model.ProductOrder;
@@ -71,5 +72,8 @@ public class OrderValidationImpl implements OrderValidation {
         if(quantityProductOrder<=0) throw new OrderProcessError("Quantidade à consumir deve ser maior que 0");
     }
 
-
+    @Override
+    public void validateToExclude(Order order) {
+        if(!order.getStatus()) throw new UnprocessableAction("Ordem ja se encontra fechada, não pode ser excluida!");
+    }
 }
