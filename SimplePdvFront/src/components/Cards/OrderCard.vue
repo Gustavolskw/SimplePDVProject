@@ -1,8 +1,8 @@
 <template>
-  <div class="card">
+  <div class="card d-flex flex-column">
     <div class="card-header fw-bold">#{{ props.id }}</div>
     <div
-      class="card-body d-flex justify-content-center text-center align-items-center header-comp"
+      class="card-body d-flex flex-wrap justify-content-center text-center align-items-center header-comp"
     >
       <h5 class="card-title">Consumidor: {{ props.consumerName }}</h5>
       <h5 class="card-title">Guia: {{ props.guideName }}</h5>
@@ -30,30 +30,60 @@
         Mesa:{{ props.updatedAt }}
       </p>
     </div>
-    <div class="card-body d-flex flex-wrap justify-content-between body-btn">
+    <div class="card-body d-flex flex-wrap justify-content-evenly body-btn">
       <button
-        v-if="props.status === true"
-        class="btn btn-danger text-white fw-bold"
-      >
-        Cancelar
-      </button>
-      <button
-        v-if="props.status === true"
+        @click.prevent="endOrder(props.id)"
+        v-if="props.productsInOrder > 0 && props.status === true"
         class="btn btn-success text-white fw-bold"
       >
         Finalizar Pedido
       </button>
       <button
+        @click="cancelOrder(props.id)"
+        v-if="props.status === true"
+        class="btn btn-danger text-white fw-bold"
+      >
+        Cancelar
+      </button>
+
+      <button
         v-if="props.status === true"
         class="btn add-pedido-btn text-white fw-bold"
       >
-        Adicionoar Produto
+        Adicionar Produto
+      </button>
+
+      <button class="btn btn-outline-info fw-bold" @click="openOrderModal">
+        Ver Pedido
       </button>
     </div>
   </div>
+
+  <Teleport to="body">
+    <!-- use the modal component, pass in the prop -->
+    <OrderShowModal
+      ref="orderShowModal"
+      :show="showOrderModal"
+      @close="showOrderModal = false"
+    ></OrderShowModal>
+  </Teleport>
 </template>
 
 <script setup>
+import OrderShowModal from "../Modals/OrderShowModal.vue";
+import axiosClient from "@/Client/AxiosClient";
+import { ref } from "vue";
+
+const emit = defineEmits(["ORDER_RELOAD"]);
+
+const showOrderModal = ref(false);
+const orderShowModal = ref(null);
+
+function openOrderModal() {
+  showOrderModal.value = true;
+  orderShowModal.value.getOrderById(props.id); // Call the method on the child component
+}
+
 const props = defineProps({
   id: {
     type: Number,
@@ -96,11 +126,31 @@ const props = defineProps({
   },
 });
 
-function cancelOrder(id) {
-  console.log(id);
+async function cancelOrder(id) {
+  console.log("cancelar" + id);
+  try {
+    const response = await axiosClient.delete(`/order/${id}/cancel`, null, {
+      timeout: 2000,
+    });
+    emit("ORDER_RELOAD");
+    console.log(response.data.message);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
-function finalizarPedido(id) {}
+async function endOrder(id) {
+  console.log("finalizar" + id);
+  try {
+    const response = await axiosClient.put(`/order/${id}/close`, null, {
+      timeout: 2000,
+    });
+    emit("ORDER_RELOAD");
+    console.log(response.data.message);
+  } catch (error) {
+    console.log(error.response.data.message);
+  }
+}
 </script>
 
 <style scoped>
@@ -116,7 +166,7 @@ function finalizarPedido(id) {}
   border-bottom: 1px solid lightgray;
 }
 .body-btn {
-  margin: 0 10rem;
+  gap: 2rem;
 }
 
 .add-pedido-btn {
@@ -124,5 +174,13 @@ function finalizarPedido(id) {}
 }
 .add-pedido-btn:hover {
   background-color: rgba(39, 173, 111, 0.63) !important;
+}
+@media (max-width: 1000px) {
+  .header-comp {
+    gap: 2rem;
+  }
+  .body-btn > button {
+    font-size: 0.8rem;
+  }
 }
 </style>

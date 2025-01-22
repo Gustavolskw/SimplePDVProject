@@ -1,15 +1,13 @@
 <template>
-  <Transition name="modal">
-    <div v-if="show" class="modal-mask">
-      <div class="modal-container">
-        <div class="modal-header d-flex justify-content-center">
+  <Transition name="modal-open">
+    <div v-if="show" class="modal-mask-open">
+      <div class="modal-container-open">
+        <div class="modal-header-open d-flex justify-content-center">
           <h2>Formulário de Ordem</h2>
         </div>
         <form class="row g-3 needs-validation" novalidate>
           <div class="col-md-9">
-            <label for="validationCustom01" class="form-label"
-              >Nome do consumidor</label
-            >
+            <label for="validationCustom01" class="form-label">Nome do consumidor</label>
             <input
               type="text"
               class="form-control"
@@ -28,14 +26,10 @@
               v-model="tableNumber"
               required
             />
-            <div class="invalid-feedback">
-              Escolha uma Mesa para inciar o pedido!
-            </div>
+            <div class="invalid-feedback">Escolha uma Mesa para inciar o pedido!</div>
           </div>
           <div class="col-md-3">
-            <label for="validationCustom01" class="form-label"
-              >Id do Guia</label
-            >
+            <label for="validationCustom01" class="form-label">Id do Guia</label>
             <input
               type="number"
               class="form-control"
@@ -48,9 +42,7 @@
             <div class="valid-feedback">Id Válido!</div>
           </div>
           <div class="col-md-9">
-            <label for="validationCustomUsername" class="form-label"
-              >Guia</label
-            >
+            <label for="validationCustomUsername" class="form-label">Guia</label>
             <div class="input-group has-validation">
               <span class="input-group-text" id="inputGroupPrepend">@</span>
               <input
@@ -68,17 +60,14 @@
             </div>
           </div>
         </form>
-        <div class="modal-footer d-flex justify-content-center gap-5 mt-5">
+        <div class="modal-footer-open d-flex justify-content-center gap-5 mt-5">
           <button
             class="btn btn-success text-dark fw-bold px-3 py-2"
-            @click.prevent="handleOrderOpen"
+            @click.prevent="handleOrderOpen()"
           >
             Adicionar
           </button>
-          <button
-            class="btn btn-warning text-dark fw-bold px-3 py-2"
-            @click="$emit('close')"
-          >
+          <button class="btn btn-warning text-dark fw-bold px-3 py-2" @click="closeModal">
             Cancelar
           </button>
         </div>
@@ -93,10 +82,6 @@ import axiosClient from "@/Client/AxiosClient";
 defineProps({
   show: {
     type: Boolean,
-  },
-  isError: {
-    type: Boolean,
-    default: false,
   },
 });
 
@@ -126,7 +111,16 @@ function handleGuideInputChange(event) {
     getGuide(id);
   }
 }
-
+function closeModal() {
+  cleanFormInputs();
+  emit("close");
+}
+function cleanFormInputs() {
+  consumerName.value = "";
+  tableNumber.value = null;
+  guide.value = null;
+  guideName.value = "";
+}
 async function sendOpenOrderRequest() {
   const payload = {
     consumerName: consumerName.value,
@@ -141,7 +135,8 @@ async function sendOpenOrderRequest() {
       timeout: 2000,
     });
     console.log(response.data.message);
-    $emit("ORDER_OPENED"); // Emit event only after a successful response
+    emit("ORDER_OPENED"); // Emit event only after a successful response
+    cleanFormInputs();
   } catch (error) {
     console.error("Failed to open order:", error);
   }
@@ -152,8 +147,8 @@ function handleOrderOpen() {
 }
 </script>
 
-<style>
-.modal-mask {
+<style scoped>
+.modal-mask-open {
   position: fixed;
   z-index: 9994 !important; /* Essa parte pode ser ajustada */
   top: 0;
@@ -166,7 +161,7 @@ function handleOrderOpen() {
   backdrop-filter: blur(1px);
 }
 
-.modal-container {
+.modal-container-open {
   width: 500px;
   margin: auto;
   padding: 20px 30px;
@@ -176,25 +171,25 @@ function handleOrderOpen() {
   transition: all 0.3s ease;
 }
 
-.modal-header h3 {
+.modal-header-open h3 {
   margin-top: 0;
   color: #ff0000;
 }
 
-.modal-body {
+.modal-body-open {
   margin: 20px 0;
 }
 
-.modal-enter-from {
+.modal-enter-from-open {
   opacity: 0;
 }
 
-.modal-leave-to {
+.modal-leave-to-open {
   opacity: 0;
 }
 
-.modal-enter-from .modal-container,
-.modal-leave-to .modal-container {
+.modal-enter-from-open .modal-container-open,
+.modal-leave-to-open .modal-container-open {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
 }
