@@ -2,8 +2,6 @@ package com.web.service.presentation.controller;
 
 import com.web.service.application.dto.ProductCreationDTO;
 import com.web.service.application.service.ProductService;
-import com.web.service.domain.exception.ListEmptyException;
-import com.web.service.domain.model.Product;
 import com.web.service.presentation.viewModel.ApiResponse;
 import com.web.service.presentation.viewModel.ProductResponseDTO;
 import jakarta.validation.Valid;
@@ -32,20 +30,17 @@ public class ProductController {
             return ResponseEntity.ok().body(new ApiResponse("Produto atualizado com sucesso!", new ProductResponseDTO(productService.updateProduct(id, productCreationDTO, image))));
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse> getAllProducts() {
-            return ResponseEntity.ok().body(new ApiResponse("Lista de Produtos", productService.findAllProducts().stream().map(ProductResponseDTO::new).toList()));
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getProductById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(new ApiResponse("Produto encontrado", new ProductResponseDTO(productService.findProductById(id))));
     }
 
-    @GetMapping("/search")
+    @GetMapping()
     public ResponseEntity<ApiResponse> searchProductsByParam(
-            @RequestParam(name = "name", required = false) String name) {
-        return ResponseEntity.ok().body(new ApiResponse("Lista de Produtos Encontrados", productService.findProductsByName(name).stream().map(ProductResponseDTO::new).toList()));
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "status", required = false) Boolean status,
+            @RequestParam(name = "type", required = false) Long type) {
+        return ResponseEntity.ok().body(new ApiResponse("Lista de Produtos Encontrados", productService.findProductsByParam(name, status, type).stream().map(ProductResponseDTO::new).toList()));
     }
 
     @DeleteMapping("/{id}")

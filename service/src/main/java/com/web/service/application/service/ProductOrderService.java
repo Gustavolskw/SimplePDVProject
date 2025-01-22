@@ -40,9 +40,15 @@ public class ProductOrderService {
     }
 
     @Transactional
-    public void increaseQuantityOnOrder(Long orderId, Long productId) {
+    public void increaseQuantityOnOrder(Long orderId, Long productId, Integer quantity) {
         ProductOrder productOrderSel = getPorductOrderByPorductAndOrder(orderId, productId);
-        productOrderSel.setQuantity(productOrderSel.getQuantity() + 1);
+        System.out.println("Quantidade atual do produto: "+ productOrderSel.getQuantity());
+        System.out.println("Quantidade a inserir :"+quantity);
+        if(quantity != null){
+            productOrderSel.setQuantity(productOrderSel.getQuantity() + quantity);
+        }else {
+            productOrderSel.setQuantity(productOrderSel.getQuantity() + 1);
+        }
     }
 
     @Transactional
@@ -59,6 +65,11 @@ public class ProductOrderService {
         Optional<ProductOrder> prodductorder = productOrderRepository.findByOrderIdAndProductId(orderId, productId);
         if (prodductorder.isEmpty())throw new EntityNotFoundException("ordem de produto não encontrada");
         return prodductorder.get();
+    }
+
+    public ProductOrder getPorductOrderByPorductAndOrderOrNot(Long orderId, Long productId){
+        Optional<ProductOrder> prodductorder = productOrderRepository.findByOrderIdAndProductId(orderId, productId);
+        return prodductorder.orElse(null);
     }
 
     private ProductOrder buildProductOrder(Order order, Product product, Integer quantity) {

@@ -1,24 +1,19 @@
 package com.web.service.application.service;
 
 import com.web.service.application.dto.ProductCreationDTO;
-import com.web.service.domain.exception.AlreadyExistsException;
 import com.web.service.domain.exception.EntityNotFoundException;
 import com.web.service.domain.exception.ListEmptyException;
 import com.web.service.domain.model.Product;
 import com.web.service.domain.repository.ProductRepository;
 import com.web.service.domain.validation.ProductValidation;
-import com.web.service.presentation.viewModel.ProductResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.internal.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +37,7 @@ public class ProductService {
         return savedProduct;
     }
 
-    public List<Product> findAllProducts() {
+    private List<Product> findAllProducts() {
         List<Product> products = productRepository.findAll();
         if(products.isEmpty())throw new ListEmptyException("Product list is empty");
         return products;
@@ -54,13 +49,20 @@ public class ProductService {
         return product.get();
     }
 
-    public List<Product> findProductsByName(String name) {
-        Optional<List<Product>> listProductsSerach = productRepository.searchProductsByParamName("%"+name+"%");
-        if(listProductsSerach.isPresent()){
-            if(listProductsSerach.get().isEmpty())throw new ListEmptyException("Product list is empty");
-            return listProductsSerach.get();
+    public List<Product> findProductsByParam(String name, Boolean status, Long type) {
+        // Append wildcards to the name parameter if not null
+        String searchName = (name != null) ? "%" + name + "%" : null;
+
+        // Fetch products using the repository method
+        List<Product> products = productRepository.searchProductsByParam(status, searchName, type)
+                .orElseThrow(() -> new ListEmptyException("Product list is empty"));
+
+        // Check if the list is empty
+        if (products.isEmpty()) {
+            throw new ListEmptyException("Product list is empty");
         }
-        throw new ListEmptyException("Product list is empty");
+
+        return products;
     }
 
 

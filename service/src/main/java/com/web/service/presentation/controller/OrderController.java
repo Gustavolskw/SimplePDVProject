@@ -4,10 +4,7 @@ import com.web.service.application.dto.OrderPlacingDTO;
 import com.web.service.application.dto.OrderProductDto;
 import com.web.service.application.service.OrderService;
 import com.web.service.domain.model.Order;
-import com.web.service.presentation.viewModel.ApiResponse;
-import com.web.service.presentation.viewModel.CompleteOrderResponse;
-import com.web.service.presentation.viewModel.OrderResponse;
-import com.web.service.presentation.viewModel.PageableResponse;
+import com.web.service.presentation.viewModel.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,8 +22,8 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<ApiResponse> placeOrder(@Valid @RequestBody OrderPlacingDTO orderDto) {
-        orderService.placeOrder(orderDto);
-        return ResponseEntity.ok().body(new ApiResponse("Pedido adicionado com sucesso!", null));
+
+        return ResponseEntity.ok().body(new ApiResponse("Pedido adicionado com sucesso!", new OrderOpenedDTO(orderService.placeOrder(orderDto))));
     }
 
     @PostMapping("/{id}/include")
@@ -91,8 +88,11 @@ public class OrderController {
                                                     @RequestParam(name = "consumer", required = false) String consumerName,
                                                     @RequestParam(name = "guide", required = false) String guideName,
                                                     @RequestParam(name = "table", required = false)Integer tableNumber){
+        Page<Order> responsePaged = orderService.getOrdersByParam(guideName,consumerName, tableNumber, pageable);
 
-        return ResponseEntity.ok().body(new ApiResponse("Ordem de pedido", orderService.getOrdersByParam(guideName,consumerName, tableNumber)));
+        Page<OrderResponse> orderResponseTransformed =responsePaged.map(OrderResponse::new);
+
+        return ResponseEntity.ok().body(new ApiResponse("Ordem de pedido", new PageableResponse<>(orderResponseTransformed)));
     }
 
     @GetMapping("/{id}")

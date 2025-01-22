@@ -5,16 +5,12 @@ import com.web.service.domain.exception.OrderProcessError;
 import com.web.service.domain.exception.UnprocessableAction;
 import com.web.service.domain.exception.ValidationException;
 import com.web.service.domain.model.Order;
-import com.web.service.domain.model.ProductOrder;
 import com.web.service.domain.repository.OrderRepository;
 import com.web.service.domain.repository.ProductRepository;
 import com.web.service.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Set;
 
 @Service
 @Slf4j
@@ -58,12 +54,9 @@ public class OrderValidationImpl implements OrderValidation {
     }
 
     @Override
-    public void validateInsertProductOnOrder(Long productId, Long orderId) {
+    public void validateUpdateProductOnOrder(Long productId, Long orderId) {
         Order orderRequested = orderRepository.findById(orderId).orElseThrow(()->new EntityNotFoundException("Order inexistente!"));
-        Set<ProductOrder> productOrderList = orderRequested.getProductsOnOrder();
-        productOrderList.forEach(productOrder -> {
-            if(productOrder.getProduct().getId().equals(productId))throw new OrderProcessError("Produto já existente no pedido!");
-        });
+        if(!orderRequested.getStatus())throw new OrderProcessError("Ordem apontada está inativada!");
     }
 
     @Override
@@ -75,5 +68,10 @@ public class OrderValidationImpl implements OrderValidation {
     @Override
     public void validateToExclude(Order order) {
         if(!order.getStatus()) throw new UnprocessableAction("Ordem ja se encontra fechada, não pode ser excluida!");
+    }
+
+    @Override
+    public void validateToClose(Order order) {
+        if(order.getProductsOnOrder().isEmpty()) throw new OrderProcessError("Ordem apontada para fechamento não possui itens!");
     }
 }

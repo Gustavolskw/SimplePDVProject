@@ -8,7 +8,8 @@ public interface OrderValidation {
     void ValidateConsumerName(String consumerName);
     void validateGuide(Long guide);
     void validateProductOnOrder(Long productId, Long id);
-    void validateInsertProductOnOrder(Long productId, Long id);
+    void validateUpdateProductOnOrder(Long productId, Long id);
     void validateQuantityProductOrder(Integer quantityProductOrder);
     void validateToExclude(Order id);
+    void validateToClose(Order order);
 }

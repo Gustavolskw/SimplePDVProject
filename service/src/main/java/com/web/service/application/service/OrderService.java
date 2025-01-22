@@ -4,23 +4,16 @@ import com.web.service.application.dto.OrderPlacingDTO;
 import com.web.service.application.dto.OrderProductDto;
 import com.web.service.domain.exception.EntityNotFoundException;
 import com.web.service.domain.model.Order;
-import com.web.service.domain.model.Product;
-import com.web.service.domain.model.ProductOrder;
 import com.web.service.domain.model.User;
 import com.web.service.domain.repository.OrderRepository;
 import com.web.service.domain.validation.OrderValidation;
-import com.web.service.presentation.viewModel.OrderResponse;
-import com.web.service.presentation.viewModel.OrderSearchResult;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,37 +24,45 @@ public class OrderService {
     private final ProductOrderService productOrderService;
 
 
-    public void placeOrder(OrderPlacingDTO orderPlacingDTO) {
+    public Long placeOrder(OrderPlacingDTO orderPlacingDTO) {
         orderValidation.validateTable(orderPlacingDTO.tableNum());
         orderValidation.ValidateConsumerName(orderPlacingDTO.consumerName());
         orderValidation.validateGuide(orderPlacingDTO.guide());
         User guide = userService.findById(orderPlacingDTO.guide());
         Order newOrder = buildOrder(orderPlacingDTO, guide);
         orderRepository.save(newOrder);
+        return newOrder.getId();
     }
 
     public void includeProductOnOrder(Long id, OrderProductDto orderProductDto) {
         orderValidation.validateOrder(id);
         orderValidation.validateProductOnOrder(orderProductDto.productId(), id);
-        orderValidation.validateInsertProductOnOrder(orderProductDto.productId(), id);
+        orderValidation.validateUpdateProductOnOrder(orderProductDto.productId(), id);
         orderValidation.validateQuantityProductOrder(orderProductDto.quantity());
-        productOrderService.includeProduct(findById(id), orderProductDto);
+        if(productOrderService.getPorductOrderByPorductAndOrderOrNot(id, orderProductDto.productId()) == null) {
+            productOrderService.includeProduct(findById(id), orderProductDto);
+        }else {
+            productOrderService.increaseQuantityOnOrder(id, orderProductDto.productId(), orderProductDto.quantity());
+        }
     }
 
     public void decreaseProductOnOrder(Long id, OrderProductDto orderProductDto) {
         orderValidation.validateOrder(id);
+        orderValidation.validateUpdateProductOnOrder(orderProductDto.productId(), id);
         orderValidation.validateProductOnOrder(orderProductDto.productId(), id);
         productOrderService.decrementProduct(id, orderProductDto.productId());
     }
 
     public void increaseProductOnOrder(Long id, OrderProductDto orderProductDto) {
         orderValidation.validateOrder(id);
+        orderValidation.validateUpdateProductOnOrder(orderProductDto.productId(), id);
         orderValidation.validateProductOnOrder(orderProductDto.productId(), id);
-        productOrderService.increaseQuantityOnOrder(id, orderProductDto.productId());
+        productOrderService.increaseQuantityOnOrder(id, orderProductDto.productId(), null);
     }
 
     public void adjustProductOnOrder(Long id, OrderProductDto orderProductDto) {
         orderValidation.validateOrder(id);
+        orderValidation.validateUpdateProductOnOrder(orderProductDto.productId(), id);
         orderValidation.validateProductOnOrder(orderProductDto.productId(), id);
         orderValidation.validateQuantityProductOrder(orderProductDto.quantity());
         productOrderService.adjustQuantityOnOrder(id, orderProductDto.productId(), orderProductDto.quantity());
@@ -85,6 +86,7 @@ public class OrderService {
     @Transactional
     public void closeOrder(Long id) {
         Order order = findById(id);
+        orderValidation.validateToClose(order);
         order.setStatus(false);
     }
     @Transactional
@@ -104,8 +106,8 @@ public class OrderService {
         return order;
     }
 
-    public List<OrderSearchResult> getOrdersByParam(String guide, String consumer, Integer table) {
-        return orderRepository.findByParams(consumer, guide, table);
+    public Page<Order> getOrdersByParam(String guide, String consumer, Integer table, Pageable pageable) {
+        return orderRepository.findByParams(consumer, guide, table, pageable);
     }
 
 
