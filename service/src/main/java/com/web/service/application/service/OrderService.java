@@ -3,6 +3,7 @@ package com.web.service.application.service;
 import com.web.service.application.dto.OrderPlacingDTO;
 import com.web.service.application.dto.OrderProductDto;
 import com.web.service.domain.exception.EntityNotFoundException;
+import com.web.service.domain.exception.ListEmptyException;
 import com.web.service.domain.model.Order;
 import com.web.service.domain.model.User;
 import com.web.service.domain.repository.OrderRepository;
@@ -80,9 +81,6 @@ public class OrderService {
         return order.get();
     }
 
-    public Page<Order> getAllOrders(Pageable pageable) {
-        return orderRepository.findAll(pageable);
-    }
     @Transactional
     public void closeOrder(Long id) {
         Order order = findById(id);
@@ -107,7 +105,11 @@ public class OrderService {
     }
 
     public Page<Order> getOrdersByParam(String guide, String consumer, Integer table, Pageable pageable) {
-        return orderRepository.findByParams(consumer, guide, table, pageable);
+        Page<Order> listOfOrders = orderRepository.findByParams(consumer, guide, table, pageable);
+        if(listOfOrders.isEmpty()){
+            throw new ListEmptyException("Lista de pedidos esta vazia");
+        }
+        return listOfOrders;
     }
 
 

@@ -68,22 +68,7 @@ public class OrderController {
         return ResponseEntity.ok().body(new ApiResponse("Produto excluido do pedido com sucesso!", null));
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse> getAllOrders(@PageableDefault(size = 20) Pageable pageable){
-        Page<Order> responsePaged = orderService.getAllOrders(pageable);
-
-        // Transform Order to OrderResponse (or any other DTO)
-        Page<OrderResponse> responseTransformed = responsePaged.map(OrderResponse::new);
-
-        return ResponseEntity.ok().body(new ApiResponse(
-                "Lista de Ordens",
-                new PageableResponse<>(responseTransformed)
-        ));
-
-    }
-
-
-    @GetMapping("/search")
+    @GetMapping()
     public ResponseEntity<ApiResponse> searchOrders(@PageableDefault(size = 20) Pageable pageable,
                                                     @RequestParam(name = "consumer", required = false) String consumerName,
                                                     @RequestParam(name = "guide", required = false) String guideName,
