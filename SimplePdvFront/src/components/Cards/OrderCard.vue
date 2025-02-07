@@ -21,7 +21,7 @@
         Total de itens:{{ props.itemsQuantity }}
       </p>
       <p class="card-text col-md-4 col-lg-4 mb-4">
-        Valor Total: R${{ props.totalValue }}
+        Valor Total:{{ formatCurrency(props.totalValue) }}
       </p>
       <p
         v-if="props.updatedAt != null"
@@ -49,6 +49,7 @@
       <button
         v-if="props.status === true"
         class="btn add-pedido-btn text-white fw-bold"
+        @click.prevent="enterInAOrder"
       >
         Adicionar Produto
       </button>
@@ -71,13 +72,19 @@
 
 <script setup>
 import OrderShowModal from "../Modals/OrderShowModal.vue";
+import { formatCurrency } from "@/Util/Currency";
 import axiosClient from "@/Client/AxiosClient";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+
 import { ref } from "vue";
 
 const emit = defineEmits(["ORDER_RELOAD"]);
 
 const showOrderModal = ref(false);
 const orderShowModal = ref(null);
+const store = useStore();
+const router = useRouter();
 
 function openOrderModal() {
   showOrderModal.value = true;
@@ -150,6 +157,14 @@ async function endOrder(id) {
   } catch (error) {
     console.log(error.response.data.message);
   }
+}
+
+function enterInAOrder() {
+  store.dispatch("saveToken", {
+    tokenName: "orderToken",
+    tokenValue: props.id,
+  });
+  router.push("/produtos");
 }
 </script>
 

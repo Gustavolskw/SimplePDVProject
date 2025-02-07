@@ -1,39 +1,127 @@
 <template>
-  <section class="d-flex flex-wrap justify-content-evenly mx-5 my-5">
+  <section>
+    <ProductsNavBar
+      @ORDER_OPENED_FROM_NAV="updateAfterOrderOpened"
+      :hasToken="hasToken"
+      ref="filtersFromNav"
+      @SEARCH_PRODUCTS="handleProductsSearch"
+      @CONTINUE_ORDER="cleanFilters"
+    ></ProductsNavBar>
+  </section>
+  <section
+    class="d-flex flex-wrap justify-content-evenly mx-5 my-5 card-section"
+    v-if="!errorOnProductData"
+  >
     <ProductCard
+      @EMIT_iNCLUSION_ALERT="handleAlertPopUp"
       v-for="product in products"
       :key="product.id"
       :id="product.id"
       :name="product.name"
       :description="product.description"
+      :status="product.status"
       :type="product.type"
       :value="product.value"
       :imageUrl="product.imageUrl"
+      :orderId="parseInt(orderToken)"
     ></ProductCard>
   </section>
+  <section v-else class="d-flex justify-content-center align-items-center">
+    <h4 class="fw-bold text-danger text-center mt-5">
+      Nenhum Produto Encontrado!
+    </h4>
+  </section>
+
+  <Teleport to="body">
+    <AlertModal
+      @close="alertModal = false"
+      :alertShow="alertModal"
+      :message="alertMessage"
+      :status="alertMessageStatus"
+    >
+    </AlertModal>
+  </Teleport>
 </template>
+
 <script setup>
 import axiosClient from "@/Client/AxiosClient";
+
+import ProductsNavBar from "@/components/ProductsNavBar.vue";
 import ProductCard from "@/components/Cards/ProductCard.vue";
+import AlertModal from "@/components/Alerts/AlertModal.vue";
+import { useStore } from "vuex";
 import { ref, onMounted } from "vue";
+
+const alertModal = ref(false);
+const alertMessage = ref("");
+const alertMessageStatus = ref();
+
+const store = useStore();
+
+const filtersFromNav = ref();
 
 const products = ref([]);
 const filtersHead = ref();
+const orderToken = ref();
+const hasToken = ref(false);
+const errorOnProductData = ref(false);
 
 onMounted(() => {
-  getProducts();
+  initializeState();
 });
+
+function initializeState() {
+  orderToken.value = store.getters.getToken("orderToken");
+  hasToken.value = !!orderToken.value;
+  handleProductsCleanSearch();
+}
+
 async function getProducts() {
-  const filters = filtersHead.value;
+  const filters = { ...filtersHead.value, status: true };
   try {
     const response = await axiosClient.get("/product", {
       params: filters,
       timeout: 2000,
     });
-    products.value = response.data.data;
-    console.log(response.data.data);
+    if (response.data.data == null) {
+      products.value = null;
+      errorOnProductData.value = true;
+    } else {
+      products.value = response.data.data.content;
+      errorOnProductData.value = false;
+    }
   } catch (error) {
     console.error(error);
   }
 }
+
+function handleProductsSearch(filters) {
+  filtersHead.value = filters;
+  getProducts();
+}
+
+function handleProductsCleanSearch() {
+  filtersHead.value = null;
+  getProducts();
+}
+function cleanFilters() {
+  filtersHead.value = null;
+  filtersFromNav.value?.resetFilters();
+}
+function updateAfterOrderOpened() {
+  console.log("Order token added, updating parent state...");
+  initializeState(); // Reinitialize state to fetch token and update `hasToken`
+}
+
+function handleAlertPopUp(data) {
+  alertMessage.value = data.message;
+  alertMessageStatus.value = data.status;
+  alertModal.value = true;
+}
 </script>
+
+<style scoped>
+.card-section {
+  gap: 2rem;
+}
+</style>

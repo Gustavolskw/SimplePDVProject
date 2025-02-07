@@ -38,7 +38,7 @@ const filtersHead = ref();
 async function getOrders() {
   const filters = filtersHead.value;
   try {
-    const response = await axiosClient.get("/order/search", {
+    const response = await axiosClient.get("/order", {
       params: filters,
       timeout: 2000,
     });
@@ -75,7 +75,17 @@ section {
   margin: 4rem 24rem;
   gap: 8rem;
 }
+@media (max-width: 1400px) {
+  section {
+    margin: 4rem 10rem;
+  }
+}
 @media (max-width: 1200px) {
+  section {
+    margin: 4rem 6rem;
+  }
+}
+@media (max-width: 600px) {
   section {
     margin: 4rem 2rem;
   }

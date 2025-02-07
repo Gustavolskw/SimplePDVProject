@@ -1,12 +1,15 @@
 <script setup>
-import { RouterLink, RouterView } from "vue-router";
+import { RouterLink, useRoute } from "vue-router";
+
+const route = useRoute(); // Get the current route
 </script>
+
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-      <RouterLink class="navbar-brand" to="/"
-        ><i class="bi bi-gem"></i
-      ></RouterLink>
+      <RouterLink class="navbar-brand" to="/">
+        <i class="bi bi-gem"></i>
+      </RouterLink>
       <button
         class="navbar-toggler"
         type="button"
@@ -20,19 +23,41 @@ import { RouterLink, RouterView } from "vue-router";
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
-          <li class="nav-item">
-            <RouterLink class="nav-link active" to="/">Home</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/produtos">Produtos</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/pedidos">Pedidos</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/administracao"
-              >Administração</RouterLink
+          <!-- <li class="nav-item">
+            <RouterLink
+              class="nav-link"
+              :class="{ active: route.path === '/' }"
+              to="/"
             >
+              Home
+            </RouterLink>
+          </li> -->
+          <li class="nav-item">
+            <RouterLink
+              class="nav-link"
+              :class="{ active: route.path === '/produtos' }"
+              to="/produtos"
+            >
+              Produtos
+            </RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink
+              class="nav-link"
+              :class="{ active: route.path === '/pedidos' }"
+              to="/pedidos"
+            >
+              Pedidos
+            </RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink
+              class="nav-link"
+              :class="{ active: route.path === '/administracao' }"
+              to="/administracao"
+            >
+              Administração
+            </RouterLink>
           </li>
         </ul>
       </div>
@@ -43,5 +68,6 @@ import { RouterLink, RouterView } from "vue-router";
 <style scoped>
 .nav-link {
   font-weight: 600;
+  transition: 0.3s ease-in-out;
 }
 </style>

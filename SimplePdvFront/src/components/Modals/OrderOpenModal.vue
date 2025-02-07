@@ -1,13 +1,15 @@
 <template>
-  <Transition name="modal-open">
-    <div v-if="show" class="modal-mask-open">
-      <div class="modal-container-open">
-        <div class="modal-header-open d-flex justify-content-center">
+  <Transition name="modal">
+    <div v-if="show" class="modal-mask">
+      <div class="modal-container">
+        <div class="modal-header d-flex justify-content-center">
           <h2>Formulário de Ordem</h2>
         </div>
         <form class="row g-3 needs-validation" novalidate>
           <div class="col-md-9">
-            <label for="validationCustom01" class="form-label">Nome do consumidor</label>
+            <label for="validationCustom01" class="form-label"
+              >Nome do consumidor</label
+            >
             <input
               type="text"
               class="form-control"
@@ -26,10 +28,14 @@
               v-model="tableNumber"
               required
             />
-            <div class="invalid-feedback">Escolha uma Mesa para inciar o pedido!</div>
+            <div class="invalid-feedback">
+              Escolha uma Mesa para inciar o pedido!
+            </div>
           </div>
           <div class="col-md-3">
-            <label for="validationCustom01" class="form-label">Id do Guia</label>
+            <label for="validationCustom01" class="form-label"
+              >Id do Guia</label
+            >
             <input
               type="number"
               class="form-control"
@@ -42,7 +48,9 @@
             <div class="valid-feedback">Id Válido!</div>
           </div>
           <div class="col-md-9">
-            <label for="validationCustomUsername" class="form-label">Guia</label>
+            <label for="validationCustomUsername" class="form-label"
+              >Guia</label
+            >
             <div class="input-group has-validation">
               <span class="input-group-text" id="inputGroupPrepend">@</span>
               <input
@@ -60,14 +68,17 @@
             </div>
           </div>
         </form>
-        <div class="modal-footer-open d-flex justify-content-center gap-5 mt-5">
+        <div class="modal-footer d-flex justify-content-center gap-5 mt-5">
           <button
             class="btn btn-success text-dark fw-bold px-3 py-2"
             @click.prevent="handleOrderOpen()"
           >
             Adicionar
           </button>
-          <button class="btn btn-warning text-dark fw-bold px-3 py-2" @click="closeModal">
+          <button
+            class="btn btn-warning text-dark fw-bold px-3 py-2"
+            @click="closeModal"
+          >
             Cancelar
           </button>
         </div>
@@ -134,8 +145,8 @@ async function sendOpenOrderRequest() {
     const response = await axiosClient.post("/order", payload, {
       timeout: 2000,
     });
-    console.log(response.data.message);
-    emit("ORDER_OPENED"); // Emit event only after a successful response
+    console.log(response.data.data.orderId);
+    emit("ORDER_OPENED", { orderId: response.data.data.orderId }); // Emit event only after a successful response
     cleanFormInputs();
   } catch (error) {
     console.error("Failed to open order:", error);
@@ -148,7 +159,7 @@ function handleOrderOpen() {
 </script>
 
 <style scoped>
-.modal-mask-open {
+.modal-mask {
   position: fixed;
   z-index: 9994 !important; /* Essa parte pode ser ajustada */
   top: 0;
@@ -161,43 +172,41 @@ function handleOrderOpen() {
   backdrop-filter: blur(1px);
 }
 
-.modal-container-open {
+.modal-container {
   width: 500px;
   margin: auto;
   padding: 20px 30px;
   background-color: #adadad;
-  border-radius: 2px;
+  border-radius: 0; /* Optional: Remove border radius for a clean edge */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
+  overflow-y: auto; /* Optional: Enable scrolling if content overflows */
 }
 
-.modal-header-open h3 {
+.modal-header h3 {
   margin-top: 0;
-  color: #ff0000;
+  color: #42b983;
 }
 
-.modal-body-open {
+.modal-body {
   margin: 20px 0;
 }
 
-.modal-enter-from-open {
+.modal-default-button {
+  float: right;
+}
+
+.modal-enter-from {
   opacity: 0;
 }
 
-.modal-leave-to-open {
+.modal-leave-to {
   opacity: 0;
 }
 
-.modal-enter-from-open .modal-container-open,
-.modal-leave-to-open .modal-container-open {
-  -webkit-transform: scale(1.1);
-  transform: scale(1.1);
-}
-
-.form-control {
-  border-color: black !important;
-}
-.input-group-text {
-  border-color: black !important;
+.modal-enter-from .modal-container,
+.modal-leave-to .modal-container {
+  -webkit-transform: translateX(20px); /* Slide-in animation from the right */
+  transform: translateX(20px);
 }
 </style>

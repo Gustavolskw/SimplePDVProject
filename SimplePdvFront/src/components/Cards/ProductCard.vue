@@ -1,24 +1,57 @@
 <template>
-  <div class="card" style="width: 18rem">
+  <div class="card border-2" style="width: 18rem">
     <img
-      v-if="props.imageUrl !== null"
-      :src="`http://localhost:8080/api/image/${props.imageUrl}`"
+      v-if="props.imageUrl"
+      :src="`${api.apiBaseUrl}/image/${props.imageUrl}`"
       class="image-card-own"
       alt="Imagem do Produto"
     />
-    <img v-else src="../../../public/NullImage.png" alt="" class="image-card-own" />
-    <div class="card-body">
-      <h5 class="card-title">#{{ props.id }} {{ props.name }}</h5>
+    <img
+      v-else
+      src="../../../public/NullImage.png"
+      alt=""
+      class="image-card-own"
+    />
+    <div class="card-body border-top">
+      <h5 class="card-title">{{ props.name }}</h5>
       <div>
         <p>{{ props.description }}</p>
-        <p class="fw-bold">{{ props.type }}</p>
-        <p>{{ formatCurrency(props.value) }}</p>
+        <p><span class="fw-bold">Cassificação: </span>{{ props.type }}</p>
+        <p>
+          <span class="fw-bold">Valor: </span>{{ formatCurrency(props.value) }}
+        </p>
       </div>
-      <a href="#" class="btn btn-primary">Go somewhere</a>
+      <div class="d-flex justify-content-center" v-if="props.orderId">
+        <button
+          class="btn btn-primary fw-bold"
+          @click="openOrderModal"
+          v-if="props.status == true"
+        >
+          Adicionar a Ordem
+        </button>
+        <p v-else class="text-danger fs-5 fw-bold">Produto inativo</p>
+      </div>
     </div>
   </div>
+  <Teleport to="body">
+    <!-- use the modal component, pass in the prop -->
+    <ProductIncludeOnOrder
+      :show="showOrderModal"
+      @close="showOrderModal = false"
+      @PRODUCT_INCLUDED_ACTION="handleProductInclusion"
+      :productName="props.name"
+      :productDescription="props.description"
+      :value="props.value"
+      :productId="props.id"
+      :orderId="props.orderId"
+    ></ProductIncludeOnOrder>
+  </Teleport>
 </template>
 <script setup>
+import ProductIncludeOnOrder from "../Modals/ProductIncludeOnOrder.vue";
+import { formatCurrency } from "@/Util/Currency";
+import api from "@/Client/api";
+import { ref } from "vue";
 const props = defineProps({
   id: {
     type: Number,
@@ -36,29 +69,46 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  status: {
+    type: Boolean,
+    required: true,
+  },
   value: {
     type: Number,
     required: true,
   },
   imageUrl: {
-    type: String,
-    required: true,
+    type: [String, null], // Accept String or null
+    required: false, // Mark as optional
+  },
+  orderId: {
+    type: [Number, null], // Accept String or null
+    required: false, // Mark as optional
   },
 });
 
-const imgFile = props.image ? `http://localhost:8080/api/image/${props.image}` : "";
-console.log(props.imageUrl);
-function formatCurrency(value) {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(value);
+const emit = defineEmits(["EMIT_iNCLUSION_ALERT"]);
+
+const showOrderModal = ref(false);
+
+function handleProductInclusion(data) {
+  showOrderModal.value = false;
+  emit("EMIT_iNCLUSION_ALERT", data);
 }
+
+function openOrderModal() {
+  showOrderModal.value = true;
+}
+
+const imgFile = props.image
+  ? `http://localhost:8080/api/image/${props.image}`
+  : "";
 </script>
 
 <style scoped>
 .image-card-own {
   width: 100%;
   height: 250px;
+  border-radius: 12px;
 }
 </style>

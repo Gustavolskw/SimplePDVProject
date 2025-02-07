@@ -4,7 +4,7 @@
       <div class="modal-container" @click.stop v-if="order">
         <div class="d-flex justify-content-between">
           <div class="modal-header fw-bolder">#{{ order.id }}</div>
-          <button class="border-0 text-black" @click="$emit('close')">
+          <button class="border-0 text-black bg-body" @click="$emit('close')">
             <i class="bi bi-x-lg fw-bolder fs-4"></i>
           </button>
         </div>
@@ -73,7 +73,9 @@
                 <span class="fw-bold">Valor UN:</span>
                 {{ formatCurrency(product.value) }}
               </p>
-              <p><span class="fw-bold">Quantidade:</span> {{ product.quantity }}</p>
+              <p>
+                <span class="fw-bold">Quantidade:</span> {{ product.quantity }}
+              </p>
               <p>
                 <span class="fw-bold">Valor Total:</span>
                 {{ formatCurrency(product.total) }}
@@ -82,7 +84,7 @@
           </div>
         </div>
 
-        <div class="modal-footer">
+        <div class="modal-footer d-flex justify-content-center flex-column">
           <p class="text-center">
             <span class="fw-bolder">Data de Criação:</span>
             {{ order.createdAt }}
@@ -100,6 +102,7 @@
 
 <script setup>
 import axiosClient from "@/Client/AxiosClient";
+import { formatCurrency } from "@/Util/Currency";
 import { ref } from "vue";
 
 const props = defineProps({
@@ -121,14 +124,6 @@ async function getOrderById(id) {
   } catch (error) {
     console.error("Error fetching order:", error);
   }
-}
-
-// Format values to Brazilian Real
-function formatCurrency(value) {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(value);
 }
 
 // Expose the getOrderById function
@@ -153,14 +148,14 @@ defineExpose({
 
 .modal-container {
   width: 400px; /* Adjust the width as needed */
-  height: 100%; /* Make it full height if required */
+  height: 100vh; /* Make it full height if required */
   margin: 0; /* Remove default centering */
-  padding: 20px 30px;
+  padding: 5px 30px;
   background-color: #fff;
   border-radius: 0; /* Optional: Remove border radius for a clean edge */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
-  overflow-y: auto; /* Optional: Enable scrolling if content overflows */
+  overflow-y: auto;
 }
 
 .modal-header h3 {
