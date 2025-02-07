@@ -1,6 +1,7 @@
 package com.web.service.application.service;
 
 import com.web.service.application.dto.ProductCreationDTO;
+import com.web.service.application.dto.ProductUpdateDTO;
 import com.web.service.domain.exception.EntityNotFoundException;
 import com.web.service.domain.exception.ListEmptyException;
 import com.web.service.domain.model.Product;
@@ -9,10 +10,11 @@ import com.web.service.domain.validation.ProductValidation;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -37,31 +39,32 @@ public class ProductService {
         return savedProduct;
     }
 
-    private List<Product> findAllProducts() {
-        List<Product> products = productRepository.findAll();
-        if(products.isEmpty())throw new ListEmptyException("Product list is empty");
-        return products;
-    }
-
     public Product findProductById(Long id) {
         Optional<Product> product = productRepository.findById(id);
         if (product.isEmpty())throw new EntityNotFoundException("Product not found");
         return product.get();
     }
 
-    public List<Product> findProductsByParam(String name, Boolean status, Long type) {
+    public Page<Product> findProductsByParam(String name, Boolean status, Long type, Pageable pageable) {
         // Append wildcards to the name parameter if not null
         String searchName = (name != null) ? "%" + name + "%" : null;
 
-        // Fetch products using the repository method
-        List<Product> products = productRepository.searchProductsByParam(status, searchName, type)
-                .orElseThrow(() -> new ListEmptyException("Product list is empty"));
+        // Fetch paginated products using the repository method
+        Page<Product> products = productRepository.searchProductsByParam(status, searchName, type, pageable);
 
-        // Check if the list is empty
+        // Additional validations
         if (products.isEmpty()) {
-            throw new ListEmptyException("Product list is empty");
+            // Throw specific exceptions or return an empty page
+            throw new ListEmptyException("No products found with the given parameters");
         }
 
+        // Ensure content isn't null (unlikely, but defensive programming)
+        products.getContent();
+        if (products.getContent().isEmpty()) {
+            throw new ListEmptyException("Unexpected error: Product list content is null or empty");
+        }
+
+        // Return the validated Page<Product>
         return products;
     }
 
@@ -72,9 +75,12 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public Product updateProduct(Long prodtId, ProductCreationDTO product, MultipartFile image) {
+    public Product updateProduct(Long prodtId, ProductUpdateDTO product, MultipartFile image) {
         Product oldProduct = findProductById(prodtId);
         if(product!=null){
+        if(product.status().describeConstable().isPresent()){
+            oldProduct.setStatus(product.status());
+        }
         if(!product.name().isEmpty() && !product.name().isBlank()){
             productValidation.validateName(product.name());
             oldProduct.setName(product.name());
