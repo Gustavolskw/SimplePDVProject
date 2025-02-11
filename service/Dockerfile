@@ -1,18 +1,14 @@
-FROM maven:3.8.4-openjdk-17-slim AS build
-
-WORKDIR /app
-
-COPY pom.xml /app
-COPY src /app/src
-
-RUN mvn clean package -DskipTests
-
+# Use a lightweight OpenJDK 17 image
 FROM openjdk:17-jdk-slim
 
+# Set the working directory inside the container
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar /app/application.jar
+# Copy the pre-built JAR from the local machine to the container
+COPY target/service-0.0.1-SNAPSHOT.jar /app/application.jar
 
+# Expose port 8080 for the application
 EXPOSE 8080
 
+# Run the Spring Boot application
 CMD ["java", "-jar", "/app/application.jar"]

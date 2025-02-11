@@ -5,19 +5,34 @@ services:
     image: mysql:8.3.0
     container_name: cardapio-database
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysql} # Usar variável de ambiente
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysql}
+      MYSQL_DATABASE: CARDAPIO_LOJA
     ports:
-      - "3307:3306" # Mapear a porta 3306 do MySQL para 3307 no host
+      - "3307:3306"
     volumes:
-      - ./mysql:/var/lib/mysql # Persistência de dados
-      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql # Iniciar com SQL de configuração
+      - ./mysql:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
   backend-cardapio:
-    build: ./service
+    build:
+      context: ./service
+      dockerfile: Dockerfile
     container_name: backend-cardapio
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-cardapio:3306/CARDAPIO_LOJA?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=mysql
     ports:
       - "8080:8080"
+    volumes:
+      - ./service/src/main/resources/application.properties:/app/application.properties
     depends_on:
-      - mysql-cardapio
+      mysql-cardapio:
+        condition: service_healthy
     restart: unless-stopped
