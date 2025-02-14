@@ -1,12 +1,12 @@
 CREATE TABLE orders (
-    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    consumer_name VARCHAR(150) NOT NULL,
-    table_number INT NOT NULL,
-    guide BIGINT NOT NULL,
-    status TINYINT NOT NULL,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME,
-    CONSTRAINT fk_guider FOREIGN KEY(guide) REFERENCES users(id)
-                    ON DELETE NO ACTION
-                    ON UPDATE CASCADE
+                        id BIGSERIAL PRIMARY KEY,
+                        consumer_name VARCHAR(150) NOT NULL,
+                        table_number INT NOT NULL,
+                        guide BIGINT NOT NULL,
+                        status BOOLEAN NOT NULL DEFAULT TRUE,
+                        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+                        updated_at TIMESTAMP,
+                        CONSTRAINT fk_guider FOREIGN KEY(guide) REFERENCES users(id)
+                            ON DELETE RESTRICT
+                            ON UPDATE CASCADE
 );
