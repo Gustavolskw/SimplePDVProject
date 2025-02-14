@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import OrdersBar from "../components/OrdersBar.vue";
+import OrdersBar from "../components/Navs/OrdersBar.vue";
 import OrderCard from "@/components/Cards/OrderCard.vue";
 import axiosClient from "@/Client/AxiosClient";
 import { ref, onMounted } from "vue";

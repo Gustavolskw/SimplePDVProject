@@ -125,7 +125,7 @@ async function includeProductOnOrder() {
       `/order/${props.orderId}/include`,
       payload,
       {
-        timeout: 2000,
+        timeout: 10000,
       }
     );
     resetForm();
@@ -134,6 +134,7 @@ async function includeProductOnOrder() {
       status: response.status,
     });
   } catch (error) {
+    console.log(error);
     resetForm();
     emit("PRODUCT_INCLUDED_ACTION", {
       message: error.response?.data?.message || "Erro desconhecido",

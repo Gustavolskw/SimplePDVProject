@@ -53,7 +53,7 @@ const route = useRoute(); // Get the current route
           <li class="nav-item">
             <RouterLink
               class="nav-link"
-              :class="{ active: route.path === '/administracao' }"
+              :class="{ active: route.path.startsWith('/administracao') }"
               to="/administracao"
             >
               Administração

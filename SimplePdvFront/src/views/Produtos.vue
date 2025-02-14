@@ -46,7 +46,7 @@
 <script setup>
 import axiosClient from "@/Client/AxiosClient";
 
-import ProductsNavBar from "@/components/ProductsNavBar.vue";
+import ProductsNavBar from "@/components/Navs/ProductsNavBar.vue";
 import ProductCard from "@/components/Cards/ProductCard.vue";
 import AlertModal from "@/components/Alerts/AlertModal.vue";
 import { useStore } from "vuex";

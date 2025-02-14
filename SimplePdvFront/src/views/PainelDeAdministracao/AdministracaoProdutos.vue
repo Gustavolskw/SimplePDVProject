@@ -1,28 +1,37 @@
 <template>
-  <section class="form-header-content">
+  <section class="form-header-content align-items-center">
     <form id="search">
       Buscar <input class="form-control" name="query" v-model="searchQuery" />
     </form>
+    <div class="mt-4">
+      <button
+        class="btn btn-outline-primary"
+        @click.prevent="showCreationModal = true"
+      >
+        Adicionar Produto
+      </button>
+    </div>
   </section>
 
-  <section class="conteudo-grid">
-    <ProductsGrid
-      @DELETE_ACTION="handleProductInactivation"
-      @UPDATE_ACTION="handleProductUpdate"
-      @REACTIVATE_ACTION="handleReactivation"
-      v-if="!loading && !error"
-      :data="products"
-      :columns="[
-        { key: 'id', name: 'ID' },
-        { key: 'name', name: 'Nome' },
-        { key: 'description', name: 'Descrição' },
-        { key: 'status', name: 'Status' },
-        { key: 'type', name: 'Tipo' },
-        { key: 'value', name: 'Valor', type: 1 },
-        { key: 'imageUrl', name: 'Imagem' },
-      ]"
-      :filter-key="searchQuery"
-    />
+  <section class="d-flex justify-content-center w-100">
+    <div v-if="!loading && !error" class="conteudo-grid">
+      <ProductsGrid
+        @DELETE_ACTION="handleProductInactivation"
+        @UPDATE_ACTION="handleProductUpdate"
+        @REACTIVATE_ACTION="handleReactivation"
+        :data="products"
+        :columns="[
+          { key: 'id', name: 'ID' },
+          { key: 'name', name: 'Nome' },
+          { key: 'description', name: 'Descrição' },
+          { key: 'status', name: 'Status' },
+          { key: 'type', name: 'Tipo' },
+          { key: 'value', name: 'Valor', type: 1 },
+          { key: 'imageUrl', name: 'Imagem' },
+        ]"
+        :filter-key="searchQuery"
+      />
+    </div>
     <p v-else-if="loading">Carregando produtos...</p>
     <p v-else class="text-danger">Erro ao carregar produtos.</p>
   </section>
@@ -38,8 +47,24 @@
   </Teleport>
 
   <Teleport to="body">
-    <EditProductModal @close="showEditModal = false" :show="showEditModal">
+    <EditProductModal
+      v-if="showEditModal"
+      @close="showEditModal = false"
+      :show="showEditModal"
+      :productRefer="updateProduct"
+      @PRODUCT_UPDATED="handleProductRelaod"
+    >
     </EditProductModal>
+  </Teleport>
+
+  <Teleport to="body">
+    <CreateProductModal
+      v-if="showCreationModal"
+      @close="showCreationModal = false"
+      :show="showCreationModal"
+      @PORDUCT_CREATED="handleProductRelaod"
+    >
+    </CreateProductModal>
   </Teleport>
 </template>
 
@@ -49,6 +74,7 @@ import axiosClient from "@/Client/AxiosClient";
 import ProductsGrid from "@/components/Grids/ProductsGrid.vue";
 import AlertModal from "@/components/Alerts/AlertModal.vue";
 import EditProductModal from "@/components/Modals/EditProductModal.vue";
+import CreateProductModal from "@/components/Modals/CreateProductModal.vue";
 
 const products = ref([]);
 const searchQuery = ref("");
@@ -57,6 +83,8 @@ const error = ref(false);
 const updateProduct = ref(null);
 
 const showEditModal = ref(false);
+
+const showCreationModal = ref(false);
 
 const alertModalMessage = ref("");
 const alertModalStatus = ref();
@@ -83,16 +111,12 @@ function handleReactivation(id) {
 }
 
 function handleProductUpdate(id) {
+  updateProduct.value = searchProductByIdOnArray(id.id);
   showEditModal.value = true;
 }
 
 function searchProductByIdOnArray(id) {
-  products.value.forEach((product) => {
-    if (product.id === id) {
-      return product;
-    }
-  });
-  return null;
+  return products.value.find((product) => product.id === id) || null;
 }
 
 async function reactivateProduct(id) {
@@ -169,6 +193,15 @@ async function getProducts() {
     loading.value = false;
   }
 }
+
+const handleProductRelaod = (data) => {
+  getProducts();
+  showEditModal.value = false;
+  showCreationModal.value = false;
+  showAlertModal.value = true;
+  alertModalMessage.value = data.message;
+  alertModalStatus.value = data.status;
+};
 </script>
 
 <style scoped>
@@ -181,7 +214,14 @@ async function getProducts() {
   margin: 2rem 1rem;
 }
 .conteudo-grid {
-  display: flex;
-  justify-content: center;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .conteudo-grid {
+    display: flex;
+    justify-content: end;
+    width: 100%;
+  }
 }
 </style>

@@ -27,7 +27,13 @@
         v-if="props.updatedAt != null"
         class="card-text col-md-4 col-lg-4 mb-4"
       >
-        Mesa:{{ props.updatedAt }}
+        Ultima Atualização:{{ props.updatedAt }}
+      </p>
+      <p
+        v-if="props.updatedAt == null"
+        class="card-text col-md-4 col-lg-4 mb-4"
+      >
+        Aberto em:{{ props.createdAt }}
       </p>
     </div>
     <div class="card-body d-flex flex-wrap justify-content-evenly body-btn">

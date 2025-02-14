@@ -6,7 +6,6 @@ import { formatCurrency } from "@/Util/Currency";
 const props = defineProps({
   data: Array,
   columns: Array,
-  filterKey: String,
 });
 
 const sortKey = ref("");
@@ -15,15 +14,8 @@ const sortOrders = ref(
 );
 
 const filteredData = computed(() => {
-  let { data, filterKey } = props;
-  if (filterKey) {
-    filterKey = filterKey.toLowerCase();
-    data = data.filter((row) => {
-      return Object.keys(row).some((key) => {
-        return String(row[key]).toLowerCase().indexOf(filterKey) > -1;
-      });
-    });
-  }
+  let { data } = props;
+
   const key = sortKey.value;
   if (key) {
     const order = sortOrders.value[key];
@@ -114,19 +106,8 @@ function handleRowUpdate(id) {
                   'text-success': entry[col.key] == true,
                 }"
               >
-                {{ entry[col.key] == true ? "Ativo" : "Inativo" }}</span
+                {{ entry[col.key] == true ? "Aberto" : "Fechado" }}</span
               >
-              <div v-else-if="col.key == 'imageUrl'">
-                <img
-                  class="img-preview"
-                  :src="
-                    entry[col.key]
-                      ? `${api.apiBaseUrl}/image/${entry[col.key]}`
-                      : ''
-                  "
-                  alt=""
-                />
-              </div>
 
               <span v-else> {{ entry[col.key] }}</span>
             </td>
@@ -138,15 +119,7 @@ function handleRowUpdate(id) {
               >
                 <i class="bi bi-trash-fill fw-bolder fs-4 text-danger"></i>
               </button>
-              <button
-                class="btn"
-                v-else
-                @click.prevent="handleReactivationAction(entry.id)"
-              >
-                <i
-                  class="bi bi-bootstrap-reboot fw-bolder fs-4 text-success"
-                ></i>
-              </button>
+
               <button class="btn" @click.prevent="handleRowUpdate(entry.id)">
                 <i
                   class="bi bi-pencil-square fw-bolder fs-4 text-secondary"
@@ -181,13 +154,13 @@ function handleRowUpdate(id) {
             <span class="fw-bold">ID:</span> #{{ entry.id }}
           </p>
           <p class="col-12 col-md-6">
-            <span class="fw-bold">Nome:</span> {{ entry.name }}
+            <span class="fw-bold">Cosumidor:</span> {{ entry.name }}
           </p>
           <p class="col-12 col-md-6">
-            <span class="fw-bold">Tipo:</span> {{ entry.type }}
+            <span class="fw-bold">Guia:</span> {{ entry.type }}
           </p>
           <p class="col-12 col-md-6">
-            <span class="fw-bold">Valor:</span>
+            <span class="fw-bold">Valor Total:</span>
             {{ formatCurrency(entry.value) }}
           </p>
           <p class="col-12 col-md-6">
@@ -199,25 +172,21 @@ function handleRowUpdate(id) {
                 'text-success': entry.status == true,
               }"
             >
-              {{ entry.status == true ? "Ativo" : "Inativo" }}
+              {{ entry.status == true ? "Aberto" : "Fechado" }}
             </span>
           </p>
           <p class="col-12">
-            <span class="fw-bold">Descrição:</span> {{ entry.description }}
+            <span class="fw-bold">Total de produtos:</span>
+            {{ entry.description }}
           </p>
-
-          <div class="col-12 d-flex align-items-center gap-2 mb-4">
-            <p class="fw-bold">Imagem:</p>
-            <img
-              class="img-preview"
-              :src="
-                entry.imageUrl
-                  ? `${api.apiBaseUrl}/image/${entry.imageUrl}`
-                  : ''
-              "
-              alt=""
-            />
-          </div>
+          <p class="col-12">
+            <span class="fw-bold">Total de Itens:</span>
+            {{ entry.description }}
+          </p>
+          <p class="col-12">
+            <span class="fw-bold">Data de Inicio:</span>
+            {{ entry.description }}
+          </p>
           <div class="col-12 d-flex justify-content-center gap-5">
             <button
               class="btn"
@@ -247,10 +216,12 @@ function handleRowUpdate(id) {
 
 <style scoped>
 table {
-  width: 100%;
   border: 2px solid #42b983;
   border-radius: 3px;
   background-color: #fff;
+  display: table;
+  width: 100%;
+  table-layout: auto;
 }
 
 th {
@@ -267,8 +238,9 @@ td {
 
 th,
 td {
-  min-width: 85px;
+  white-space: nowrap;
   padding: 10px 15px;
+  border-bottom: 1px solid #42b983;
 }
 
 th.active {
@@ -327,6 +299,13 @@ th.active .arrow {
   border-radius: 10px;
 }
 
+.img-preview {
+  max-width: 80px;
+  max-height: 80px;
+  border-radius: 5px;
+  border: 1px solid #00a058;
+  margin-top: 10px;
+}
 .wrapper-table {
   overflow-x: auto;
   display: block;
@@ -338,12 +317,9 @@ th.active .arrow {
   margin: 0 1rem;
 }
 
-.img-preview {
-  max-width: 80px;
-  max-height: 80px;
-  border-radius: 5px;
-  border: 1px solid #00a058;
-  margin-top: 10px;
+th,
+td {
+  min-width: 100px; /* Define um tamanho mínimo para não colapsar */
 }
 @media (max-width: 800px) {
   table {
@@ -355,11 +331,6 @@ th.active .arrow {
     align-items: center;
     width: 90%;
     font-size: 0.8rem;
-  }
-  .img-preview {
-    max-width: 120px;
-    max-height: 120px;
-    border-radius: 5px;
   }
 }
 </style>

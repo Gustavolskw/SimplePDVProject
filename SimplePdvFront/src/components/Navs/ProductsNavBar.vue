@@ -89,7 +89,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import OrderModal from "./Modals/OrderOpenModal.vue";
+import OrderModal from "../Modals/OrderOpenModal.vue";
 import axiosClient from "@/Client/AxiosClient";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";

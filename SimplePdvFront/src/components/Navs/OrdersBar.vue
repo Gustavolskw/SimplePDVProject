@@ -89,7 +89,7 @@
 </template>
 
 <script setup>
-import OrderModal from "./Modals/OrderOpenModal.vue";
+import OrderModal from "../Modals/OrderOpenModal.vue";
 import { ref } from "vue";
 
 // Reactive variables

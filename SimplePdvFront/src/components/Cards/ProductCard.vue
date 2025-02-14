@@ -1,17 +1,20 @@
 <template>
   <div class="card border-2" style="width: 18rem">
-    <img
-      v-if="props.imageUrl"
-      :src="`${api.apiBaseUrl}/image/${props.imageUrl}`"
-      class="image-card-own"
-      alt="Imagem do Produto"
-    />
-    <img
-      v-else
-      src="../../../public/NullImage.png"
-      alt=""
-      class="image-card-own"
-    />
+    <div class="h-100 align-items-center justify-content-center">
+      <img
+        v-if="props.imageUrl"
+        :src="`${api.apiBaseUrl}/image/${props.imageUrl}`"
+        class="image-card-own"
+        alt="Imagem do Produto"
+      />
+      <img
+        v-else
+        src="../../../public/NullImage.png"
+        alt=""
+        class="image-card-own"
+      />
+    </div>
+
     <div class="card-body border-top">
       <h5 class="card-title">{{ props.name }}</h5>
       <div>
@@ -99,16 +102,13 @@ function handleProductInclusion(data) {
 function openOrderModal() {
   showOrderModal.value = true;
 }
-
-const imgFile = props.image
-  ? `http://localhost:8080/api/image/${props.image}`
-  : "";
 </script>
 
 <style scoped>
 .image-card-own {
   width: 100%;
-  height: 250px;
+  max-height: 250px;
   border-radius: 12px;
+  margin-top: 10px;
 }
 </style>

@@ -3,77 +3,52 @@
     <div v-if="show" class="modal-mask" @click="$emit('close')">
       <div class="modal-container" @click.stop>
         <div class="modal-header d-flex justify-content-center">
-          <h2>Edição de Produto</h2>
+          <h2>Adição de Produto</h2>
         </div>
-        <ProductEditForm
-          :product="props.productRefer"
+        <ProductTypeCreationForm
           @CLOSE="$emit('close')"
-          @PRODUCT_EDIT="handleProductEdition"
-        ></ProductEditForm>
+          @PRODUCT_CREATE="handleProductTypeCreation"
+        >
+        </ProductTypeCreationForm>
       </div>
     </div>
   </Transition>
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted } from "vue";
 import axiosClient from "@/Client/AxiosClient";
-import ProductEditForm from "@/components/Forms/ProductEditForm.vue";
+import ProductTypeCreationForm from "@/components/Forms/ProductTypeCreationForm.vue";
 const props = defineProps({
   show: {
     type: Boolean,
-  },
-  productRefer: {
-    type: Object,
-    required: true,
   },
 });
 
 onMounted(() => {});
 
 // Define emitted events
-const emit = defineEmits(["PRODUCT_UPDATED", "close"]);
+const emit = defineEmits(["PRODUCT_TYPE_CREATED", "close"]);
 
-async function sendProductEdition(data) {
-  const formData = new FormData();
-
-  // Adiciona o JSON do produto ao FormData
-  formData.append(
-    "product",
-    new Blob(
-      [
-        JSON.stringify({
-          name: data.name,
-          description: data.description,
-          typeId: data.type,
-          value: data.value,
-          status: data.status,
-        }),
-      ],
-      { type: "application/json" }
-    )
-  );
-
-  // Adiciona a imagem ao FormData (se existir)
-  if (data.image) {
-    formData.append("image", data.image.files[0]);
-  }
-
+async function sendProductTypeInsert(data) {
   try {
-    const response = await axiosClient.put(`/product/${data.id}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
+    const response = await axiosClient.post(
+      `/product/type`,
+      {
+        name: data.name,
       },
-      timeout: 5000,
-    });
+      {
+        timeout: 5000,
+      }
+    );
 
-    emit("PRODUCT_UPDATED", {
+    emit("PRODUCT_TYPE_CREATED", {
       status: response.status,
       message: response.data.message,
     });
   } catch (error) {
     console.error("Erro ao atualizar produto:", error);
-    emit("PRODUCT_UPDATED", {
+    emit("PRODUCT_TYPE_CREATED", {
       status: error.status,
       message: error.response.data.message,
     });
@@ -81,8 +56,8 @@ async function sendProductEdition(data) {
 }
 
 // Chamada correta
-function handleProductEdition(data) {
-  sendProductEdition(data);
+function handleProductTypeCreation(data) {
+  sendProductTypeInsert(data);
 }
 </script>
 
@@ -101,7 +76,7 @@ function handleProductEdition(data) {
 }
 
 .modal-container {
-  width: 60rem;
+  width: 40rem;
   margin: auto;
   padding: 20px 40px;
   background-color: #adadad;

@@ -120,9 +120,12 @@ const initializeTooltips = () => {
 const route = useRoute();
 const colapseNav = ref(false);
 
+const emit = defineEmits(["HANDLE_NAV-BAR"]);
+
 // Function to toggle the sidebar
 const toggleCollapse = () => {
   colapseNav.value = !colapseNav.value;
+  emit("HANDLE_NAV-BAR", { state: colapseNav.value });
   initializeTooltips(); // Reinitialize tooltips when collapsing
 };
 
@@ -130,8 +133,10 @@ const toggleCollapse = () => {
 const checkScreenSize = () => {
   if (window.innerWidth < 700) {
     colapseNav.value = true;
+    emit("HANDLE_NAV-BAR", { state: colapseNav.value });
   } else {
     colapseNav.value = colapseNav.value;
+    emit("HANDLE_NAV-BAR", { state: colapseNav.value });
   }
 };
 
@@ -201,6 +206,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
 }
 
 .nav-item a i {
@@ -218,8 +224,28 @@ onUnmounted(() => {
   background-color: #dadada;
   border-radius: 5px;
 }
+@media (max-width: 1400px) {
+  .barra-lateral-col-on {
+    width: 20%;
+    height: 100vh;
+  }
+}
 
 @media (max-width: 1200px) {
+  .barra-lateral-col-on {
+    width: 20%;
+    height: 100vh;
+  }
+}
+
+@media (max-width: 1000px) {
+  .barra-lateral-col-on {
+    width: 25%;
+    height: 100vh;
+  }
+}
+
+@media (max-width: 800px) {
   .barra-lateral-col-on {
     width: 30%;
     height: 100vh;
@@ -229,14 +255,12 @@ onUnmounted(() => {
 @media (max-width: 600px) {
   .barra-lateral {
     position: fixed;
-    top: 0;
-    left: 0;
     background-color: #0092a5; /* Slightly darker for better visibility */
     transition: transform 0.3s ease-in-out;
   }
 
   .barra-lateral-col-on {
-    width: 35%;
+    width: 50%;
     height: 100vh;
   }
 
@@ -247,6 +271,28 @@ onUnmounted(() => {
 
   .nav-item a {
     font-size: 1.2rem; /* Larger text for mobile */
+  }
+
+  .nav-item a {
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 4rem;
+  }
+}
+
+@media (max-width: 450px) {
+  .barra-lateral-col-on {
+    width: 57%;
+    height: 100vh;
+  }
+  .barra-lateral-col-off {
+    width: 4.3rem;
+    height: 100vh;
   }
 }
 </style>

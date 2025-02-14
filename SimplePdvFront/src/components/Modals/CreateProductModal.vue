@@ -3,13 +3,13 @@
     <div v-if="show" class="modal-mask" @click="$emit('close')">
       <div class="modal-container" @click.stop>
         <div class="modal-header d-flex justify-content-center">
-          <h2>Edição de Produto</h2>
+          <h2>Adição de Produto</h2>
         </div>
-        <ProductEditForm
-          :product="props.productRefer"
+        <ProductCreationForm
           @CLOSE="$emit('close')"
-          @PRODUCT_EDIT="handleProductEdition"
-        ></ProductEditForm>
+          @PRODUCT_CREATE="handleProductCreation"
+        >
+        </ProductCreationForm>
       </div>
     </div>
   </Transition>
@@ -18,23 +18,19 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import axiosClient from "@/Client/AxiosClient";
-import ProductEditForm from "@/components/Forms/ProductEditForm.vue";
+import ProductCreationForm from "@/components/Forms/ProductCreationForm.vue";
 const props = defineProps({
   show: {
     type: Boolean,
-  },
-  productRefer: {
-    type: Object,
-    required: true,
   },
 });
 
 onMounted(() => {});
 
 // Define emitted events
-const emit = defineEmits(["PRODUCT_UPDATED", "close"]);
+const emit = defineEmits(["PORDUCT_CREATED", "close"]);
 
-async function sendProductEdition(data) {
+async function sendProductInsert(data) {
   const formData = new FormData();
 
   // Adiciona o JSON do produto ao FormData
@@ -60,20 +56,20 @@ async function sendProductEdition(data) {
   }
 
   try {
-    const response = await axiosClient.put(`/product/${data.id}`, formData, {
+    const response = await axiosClient.post(`/product`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
       timeout: 5000,
     });
 
-    emit("PRODUCT_UPDATED", {
+    emit("PORDUCT_CREATED", {
       status: response.status,
       message: response.data.message,
     });
   } catch (error) {
     console.error("Erro ao atualizar produto:", error);
-    emit("PRODUCT_UPDATED", {
+    emit("PORDUCT_CREATED", {
       status: error.status,
       message: error.response.data.message,
     });
@@ -81,8 +77,8 @@ async function sendProductEdition(data) {
 }
 
 // Chamada correta
-function handleProductEdition(data) {
-  sendProductEdition(data);
+function handleProductCreation(data) {
+  sendProductInsert(data);
 }
 </script>
 
