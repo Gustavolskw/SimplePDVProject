@@ -1,22 +1,40 @@
 version: "4"
 
 services:
-  mysql-cardapio:
-    image: mysql:8.3.0
-    container_name: cardapio-database
+  postgres-cardapio:
+    image: postgres:16
+    container_name: cardapio-database-new
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysql}
-      MYSQL_DATABASE: CARDAPIO_LOJA
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: cardapioloja
     ports:
-      - "3307:3306"
+      - "5432:5432"
     volumes:
-      - ./mysql:/var/lib/mysql
-      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./postgres:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}" ]
       interval: 10s
       retries: 5
       timeout: 5s
+
+#  mysql-cardapio:
+#    image: mysql:8.3.0
+#    container_name: cardapio-database
+#    environment:
+#      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysql}
+#      MYSQL_DATABASE: CARDAPIO_LOJA
+#    ports:
+#      - "3307:3306"
+#    volumes:
+#      - ./mysql:/var/lib/mysql
+#      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+#    healthcheck:
+#      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+#      interval: 10s
+#      retries: 5
+#      timeout: 5s
 
   backend-cardapio:
     build:
@@ -25,14 +43,14 @@ services:
     container_name: backend-cardapio
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-cardapio:3306/CARDAPIO_LOJA?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=mysql
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-cardapio:5432/cardapioloja
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
     ports:
       - "8080:8080"
     volumes:
       - ./service/src/main/resources/application.properties:/app/application.properties
     depends_on:
-      mysql-cardapio:
+      postgres-cardapio:
         condition: service_healthy
     restart: unless-stopped
