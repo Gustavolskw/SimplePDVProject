@@ -107,6 +107,8 @@
 <script setup>
 import { onMounted, ref, watch } from "vue";
 import axiosClient from "@/Client/AxiosClient";
+import api from "@/Client/api";
+import { prodcutTypeServcie } from "@/services/productTypeService";
 
 const props = defineProps({
   product: {
@@ -143,7 +145,7 @@ watch(
       selectedType.value = newProduct.typeId;
       description.value = newProduct.description;
       getProductUrl.value = newProduct.imageUrl
-        ? `http://localhost:8080/api/image/${newProduct.imageUrl}`
+        ? `${api.apiBaseUrl}/image/${newProduct.imageUrl}`
         : null;
     }
   },
@@ -157,7 +159,7 @@ function handleCleanImageInput() {
   }
   imageUrl.value = null;
   getProductUrl.value = props.product.imageUrl
-    ? `http://localhost:8080/api/image/${props.product.imageUrl}`
+    ? `${api.apiBaseUrl}/image/${props.product.imageUrl}`
     : null;
 }
 
@@ -196,9 +198,7 @@ const handleFileUpload = () => {
 // Busca os tipos de produtos
 const productTypes = async () => {
   try {
-    const response = await axiosClient.get("/product/type", {
-      timeout: 2000,
-    });
+    const response = await prodcutTypeServcie.getProductTypes();
     if (response.status === 200) {
       productTypesList.value = response.data.data;
     }

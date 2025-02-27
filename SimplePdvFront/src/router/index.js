@@ -1,5 +1,6 @@
 import PainelAdministracao from '@/views/PainelAdministracao.vue'
 import AdministracaoPedidos from '@/views/PainelDeAdministracao/AdministracaoPedidos.vue'
+import EdicaoPedido from '@/views/PainelDeAdministracao/Pedido/EdicaoPedido.vue'
 import AdministracaoProdutos from '@/views/PainelDeAdministracao/AdministracaoProdutos.vue'
 import AdministracaoTipoDeProdutos from '@/views/PainelDeAdministracao/AdministracaoTipoDeProdutos.vue'
 import AdministracaoUsuarios from '@/views/PainelDeAdministracao/AdministracaoUsuarios.vue'
@@ -52,7 +53,13 @@ const router = createRouter({
           path: '/administracao/pedidos',
           name: 'administracao-pedidos',
           component: AdministracaoPedidos,
+        },
+        {
+          path: "/administracao/pedidos/:id",
+          name: 'Edicao-pedido',
+          component: EdicaoPedido,
         }
+
       ]
     },
 

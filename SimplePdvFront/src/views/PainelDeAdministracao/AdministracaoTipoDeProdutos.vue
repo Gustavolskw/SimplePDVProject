@@ -53,8 +53,8 @@
 import { onMounted, ref, watch } from "vue";
 import ProductTypeGrid from "@/components/Grids/ProductTypeGrid.vue";
 import CreateProductTypeModal from "@/components/Modals/CreateProductTypeModal.vue";
-import axiosClient from "@/Client/AxiosClient";
 import AlertModal from "@/components/Alerts/AlertModal.vue";
+import { prodcutTypeServcie } from "@/services/productTypeService";
 
 const productTypes = ref([]);
 const searchQuery = ref("");
@@ -83,9 +83,8 @@ async function getProductTypes() {
   error.value = false;
 
   try {
-    const response = await axiosClient.get("/product/type", {
-      params: { query: searchQuery.value },
-      timeout: 5000,
+    const response = await prodcutTypeServcie.getProductTypes({
+      query: searchQuery.value,
     });
 
     // Verificando se a resposta contém dados válidos
@@ -106,9 +105,7 @@ async function getProductTypes() {
 
 async function inactivateProduct(id) {
   try {
-    const response = await axiosClient.delete(`/product/type/${id}`, {
-      timeout: 5000,
-    });
+    const response = await prodcutTypeServcie.deleteProductTypes(id);
     // Verificando se a resposta contém dados válidos
     showAlertModal.value = true;
     if (response.data && response.data.message && response.status == 200) {

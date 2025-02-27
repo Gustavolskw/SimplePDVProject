@@ -17,8 +17,8 @@
 
 <script setup>
 import { onMounted } from "vue";
-import axiosClient from "@/Client/AxiosClient";
 import ProductTypeCreationForm from "@/components/Forms/ProductTypeCreationForm.vue";
+import { prodcutTypeServcie } from "@/services/productTypeService";
 const props = defineProps({
   show: {
     type: Boolean,
@@ -32,15 +32,7 @@ const emit = defineEmits(["PRODUCT_TYPE_CREATED", "close"]);
 
 async function sendProductTypeInsert(data) {
   try {
-    const response = await axiosClient.post(
-      `/product/type`,
-      {
-        name: data.name,
-      },
-      {
-        timeout: 5000,
-      }
-    );
+    const response = await prodcutTypeServcie.createProductType(data.name);
 
     emit("PRODUCT_TYPE_CREATED", {
       status: response.status,

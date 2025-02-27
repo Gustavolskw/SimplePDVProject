@@ -16,9 +16,9 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
-import axiosClient from "@/Client/AxiosClient";
+import { onMounted } from "vue";
 import ProductEditForm from "@/components/Forms/ProductEditForm.vue";
+import { productService } from "@/services/productService";
 const props = defineProps({
   show: {
     type: Boolean,
@@ -60,12 +60,7 @@ async function sendProductEdition(data) {
   }
 
   try {
-    const response = await axiosClient.put(`/product/${data.id}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      timeout: 5000,
-    });
+    const response = await productService.updateProduct(data.id, formData);
 
     emit("PRODUCT_UPDATED", {
       status: response.status,

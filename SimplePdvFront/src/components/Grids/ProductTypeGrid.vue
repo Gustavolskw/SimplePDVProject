@@ -1,7 +1,5 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
-import api from "@/Client/api";
-import { formatCurrency } from "@/Util/Currency";
 
 const props = defineProps({
   data: Array,

@@ -1,3 +1,3 @@
 export default {
-    apiBaseUrl: "https://pdvapideploy.onrender.com/api"
+    apiBaseUrl: "http://localhost:8080/api"
 }

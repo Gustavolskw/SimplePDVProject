@@ -43,14 +43,32 @@ services:
     container_name: backend-cardapio
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-cardapio:5432/cardapioloja
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-cardapio:5432/cardapioloja?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
     ports:
       - "8080:8080"
     volumes:
       - ./service/src/main/resources/application.properties:/app/application.properties
+      - ./service/src/main/resources/storage:/app/src/main/resources/storage
     depends_on:
       postgres-cardapio:
         condition: service_healthy
     restart: unless-stopped
+
+
+  frontend-cardapio:
+    build:
+      context: ./SimplePdvFront
+      dockerfile: Dockerfile
+    container_name: frontend-cardapio
+    ports:
+      - "5173:5173" # Porta do Vite para desenvolvimento
+    volumes:
+      - ./SimplePdvFront:/app # Monta o código-fonte no container
+      - /app/node_modules # Evita sobrescrever os node_modules
+    command: npm run dev -- --host
+    depends_on:
+      - backend-cardapio
+    restart: unless-stopped
+

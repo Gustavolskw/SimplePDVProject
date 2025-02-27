@@ -22,8 +22,8 @@
 <script setup>
 import OrdersBar from "../components/Navs/OrdersBar.vue";
 import OrderCard from "@/components/Cards/OrderCard.vue";
-import axiosClient from "@/Client/AxiosClient";
 import { ref, onMounted } from "vue";
+import { orderService } from "@/services/orderService";
 
 // Reference for OrdersBar
 const ordersBarRef = ref(null);
@@ -36,12 +36,9 @@ onMounted(() => {
 const filtersHead = ref();
 
 async function getOrders() {
-  const filters = filtersHead.value;
+  const filters = { ...filtersHead.value, status: true };
   try {
-    const response = await axiosClient.get("/order", {
-      params: filters,
-      timeout: 2000,
-    });
+    const response = await orderService.getOrders(filters);
     orders.value = response.data.data.content;
     console.log(response.data.data.content);
   } catch (error) {

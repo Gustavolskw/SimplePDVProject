@@ -39,8 +39,9 @@
       >
         <li class="nav-item">
           <RouterLink
+            class="router-link"
             :class="{
-              active: route.path.startsWith('/administracao/produtos'),
+              ativo: route.path.startsWith('/administracao/produtos'),
             }"
             :to="`/administracao/produtos`"
           >
@@ -55,8 +56,9 @@
 
         <li class="nav-item">
           <RouterLink
+            class="router-link"
             :class="{
-              active: route.path.startsWith('/administracao/tipo-de-produto'),
+              ativo: route.path.startsWith('/administracao/tipo-de-produto'),
             }"
             :to="`/administracao/tipo-de-produto`"
           >
@@ -71,7 +73,8 @@
 
         <li class="nav-item">
           <RouterLink
-            :class="{ active: route.path.startsWith('/administracao/pedidos') }"
+            class="router-link"
+            :class="{ ativo: route.path.startsWith('/administracao/pedidos') }"
             :to="`/administracao/pedidos`"
           >
             <i
@@ -85,8 +88,9 @@
 
         <li class="nav-item">
           <RouterLink
+            class="router-link"
             :class="{
-              active: route.path.startsWith('/administracao/usuarios'),
+              ativo: route.path.startsWith('/administracao/usuarios'),
             }"
             :to="`/administracao/usuarios`"
           >
@@ -162,6 +166,7 @@ onUnmounted(() => {
   top: 10;
   left: 0;
   transition: transform 0.3s ease-in-out;
+  z-index: 1;
 }
 
 .barra-lateral-col-on {
@@ -190,26 +195,25 @@ onUnmounted(() => {
 .navbar-nav {
   margin-top: 1rem;
   padding-left: 0;
-  gap: 0.5rem;
+  gap: 2rem;
 }
 
 .nav-item {
   display: flex;
-  align-items: center;
+  align-items: start;
 }
 
-.nav-item a {
+.router-link {
   font-weight: bold;
   color: white;
   text-decoration: none;
-  padding: 10px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  text-align: center;
   width: 100%;
 }
 
-.nav-item a i {
+.router-link i {
   font-size: 1.2rem;
 }
 
@@ -217,12 +221,26 @@ onUnmounted(() => {
   font-size: 1.3rem;
 }
 
-.nav-item a.active {
-  transition: all 0.3s ease-in;
-  color: black;
+.ativo {
+  transition: all 0.4s ease-in-out;
   text-shadow: none;
   background-color: #dadada;
   border-radius: 5px;
+  padding: 0.5rem;
+}
+
+.ativo span {
+  color: black;
+  transition: all 0.4s linear;
+}
+.ativo i {
+  color: black;
+  transition: all 0.4s linear;
+}
+
+.router-link {
+  max-width: 100%;
+  min-width: 70%;
 }
 @media (max-width: 1400px) {
   .barra-lateral-col-on {
@@ -255,7 +273,7 @@ onUnmounted(() => {
 @media (max-width: 600px) {
   .barra-lateral {
     position: fixed;
-    background-color: #0092a5; /* Slightly darker for better visibility */
+    background-color: #006f7e; /* Slightly darker for better visibility */
     transition: transform 0.3s ease-in-out;
   }
 
@@ -287,12 +305,16 @@ onUnmounted(() => {
 
 @media (max-width: 450px) {
   .barra-lateral-col-on {
-    width: 57%;
+    width: 60%;
     height: 100vh;
   }
   .barra-lateral-col-off {
-    width: 4.3rem;
+    width: 4.4rem;
     height: 100vh;
+  }
+
+  .barra-lateral {
+    padding: 18px;
   }
 }
 </style>

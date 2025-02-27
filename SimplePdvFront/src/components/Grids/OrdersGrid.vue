@@ -1,12 +1,21 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import api from "@/Client/api";
+import { ref, computed } from "vue";
+import AssureActionAlertModal from "../Modals/AssureActionAlertModal.vue";
 import { formatCurrency } from "@/Util/Currency";
 
 const props = defineProps({
   data: Array,
   columns: Array,
 });
+
+const emit = defineEmits(["CLOSE_ORDER", "CANCEL_ORDER", "EDIT_ORDER"]);
+
+const showConfirmModal = ref(false);
+const confirmModalTitle = ref("");
+const confirmModalMessage = ref("");
+const actionType = ref(0);
+const selectedOrderId = ref(null);
+const selectedEvent = ref(null);
 
 const sortKey = ref("");
 const sortOrders = ref(
@@ -28,12 +37,6 @@ const filteredData = computed(() => {
   return data;
 });
 
-const emit = defineEmits([
-  "DELETE_ACTION",
-  "UPDATE_ACTION",
-  "REACTIVATE_ACTION",
-]);
-
 function sortBy(key) {
   sortKey.value = key;
   sortOrders.value[key] *= -1;
@@ -43,31 +46,35 @@ function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Function to check screen width
-const checkScreenSize = () => {
-  //colapseNav.value = window.innerWidth < 700;
-  //console.log(window.innerWidth);
+// Abre o modal de confirmação antes de enviar o evento ao Pai
+const openConfirmationModal = (id, type) => {
+  showConfirmModal.value = true;
+  selectedOrderId.value = id;
+  selectedEvent.value = type;
+  console.log("TIPO:" + type + " ORDEM: " + id);
+  if (type === "CLOSE_ORDER") {
+    actionType.value = 1;
+    confirmModalTitle.value = "Fechar Pedido";
+    confirmModalMessage.value = "Tem certeza que deseja fechar esse pedido?";
+  } else if (type === "CANCEL_ORDER") {
+    actionType.value = 0;
+    confirmModalTitle.value = "Cancelar Pedido";
+    confirmModalMessage.value = "Tem certeza que deseja cancelar esse pedido?";
+  }
 };
 
-onMounted(() => {
-  checkScreenSize();
-  window.addEventListener("resize", checkScreenSize);
-});
+const handleConfirmAction = () => {
+  emit(selectedEvent.value, selectedOrderId.value);
+  showConfirmModal.value = false;
+};
 
-// Cleanup event listener on unmount
-onUnmounted(() => {
-  window.removeEventListener("resize", checkScreenSize);
-});
+const closeModal = () => {
+  showConfirmModal.value = false;
+};
 
-function handleReactivationAction(id) {
-  emit("REACTIVATE_ACTION", { id });
-}
-function handleRowDelete(id) {
-  emit("DELETE_ACTION", { id });
-}
-function handleRowUpdate(id) {
-  emit("UPDATE_ACTION", { id });
-}
+const handleEditOrder = (id) => {
+  emit("EDIT_ORDER", id);
+};
 </script>
 
 <template>
@@ -112,19 +119,44 @@ function handleRowUpdate(id) {
               <span v-else> {{ entry[col.key] }}</span>
             </td>
             <td>
-              <button
-                class="btn"
-                @click.prevent="handleRowDelete(entry.id)"
-                v-if="entry.status == true"
-              >
-                <i class="bi bi-trash-fill fw-bolder fs-4 text-danger"></i>
-              </button>
+              <div class="d-flex justify-content-end">
+                <button
+                  class="Buttton"
+                  @click.prevent="
+                    openConfirmationModal(entry.orderId, 'CLOSE_ORDER')
+                  "
+                  v-if="entry.status == true && entry.productsInOrder > 0"
+                >
+                  <i class="bi bi-check-circle text-success"></i>
+                </button>
+                <button
+                  class="Buttton"
+                  disabled
+                  v-else-if="entry.status == false && entry.productsInOrder > 0"
+                >
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                </button>
 
-              <button class="btn" @click.prevent="handleRowUpdate(entry.id)">
-                <i
-                  class="bi bi-pencil-square fw-bolder fs-4 text-secondary"
-                ></i>
-              </button>
+                <button
+                  class="Buttton"
+                  v-if="entry.status == true"
+                  @click.prevent="
+                    openConfirmationModal(entry.orderId, 'CANCEL_ORDER')
+                  "
+                >
+                  <i class="bi bi-trash-fill fw-bolder fs-4 text-danger"></i>
+                </button>
+
+                <button
+                  class="Buttton"
+                  v-if="entry.status == true && entry.productsInOrder > 0"
+                  @click.prevent="handleEditOrder(entry.orderId)"
+                >
+                  <i
+                    class="bi bi-pencil-square fw-bolder fs-4 text-secondary"
+                  ></i>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -154,14 +186,17 @@ function handleRowUpdate(id) {
             <span class="fw-bold">ID:</span> #{{ entry.id }}
           </p>
           <p class="col-12 col-md-6">
-            <span class="fw-bold">Cosumidor:</span> {{ entry.name }}
+            <span class="fw-bold">Mesa:</span> {{ entry.tableNumber }}
           </p>
           <p class="col-12 col-md-6">
-            <span class="fw-bold">Guia:</span> {{ entry.type }}
+            <span class="fw-bold">Cosumidor:</span> {{ entry.consumerName }}
+          </p>
+          <p class="col-12 col-md-6">
+            <span class="fw-bold">Guia:</span> {{ entry.guideName }}
           </p>
           <p class="col-12 col-md-6">
             <span class="fw-bold">Valor Total:</span>
-            {{ formatCurrency(entry.value) }}
+            {{ formatCurrency(entry.totalValue) }}
           </p>
           <p class="col-12 col-md-6">
             <span class="fw-bold">Status:</span>
@@ -177,32 +212,51 @@ function handleRowUpdate(id) {
           </p>
           <p class="col-12">
             <span class="fw-bold">Total de produtos:</span>
-            {{ entry.description }}
+            {{ entry.productsInOrder }}
           </p>
           <p class="col-12">
             <span class="fw-bold">Total de Itens:</span>
-            {{ entry.description }}
+            {{ entry.itemsQuantity }}
           </p>
-          <p class="col-12">
+          <p
+            class="col-12"
+            v-if="entry.updatedAt == null && entry.createdAt != null"
+          >
             <span class="fw-bold">Data de Inicio:</span>
-            {{ entry.description }}
+            {{ entry.createdAt }}
+          </p>
+          <p class="col-12" v-else>
+            <span class="fw-bold">Data de Inicio:</span>
+            {{ entry.updatedAt }}
           </p>
           <div class="col-12 d-flex justify-content-center gap-5">
             <button
-              class="btn"
-              @click.prevent="handleRowDelete(entry.id)"
+              class="Buttton"
+              @click.prevent="
+                openConfirmationModal(entry.orderId, 'CLOSE_ORDER')
+              "
               v-if="entry.status == true"
+            >
+              <i class="bi bi-check-circle text-success"></i>
+            </button>
+            <button class="Buttton" disabled v-else>
+              <i class="bi bi-check-circle-fill text-success"></i>
+            </button>
+
+            <button
+              class="Buttton"
+              v-if="entry.status == true"
+              @click.prevent="
+                openConfirmationModal(entry.orderId, 'CANCEL_ORDER')
+              "
             >
               <i class="bi bi-trash-fill fw-bolder fs-4 text-danger"></i>
             </button>
+
             <button
-              class="btn"
-              v-else
-              @click.prevent="handleReactivationAction(entry.id)"
+              class="Buttton"
+              @click.prevent="handleOrderEdit(entry.orderId)"
             >
-              <i class="bi bi-bootstrap-reboot fw-bolder fs-4 text-success"></i>
-            </button>
-            <button class="btn" @click.prevent="handleRowUpdate(entry.id)">
               <i class="bi bi-pencil-square fw-bolder fs-4 text-secondary"></i>
             </button>
           </div>
@@ -212,6 +266,18 @@ function handleRowUpdate(id) {
   </div>
 
   <p v-else>No matches found.</p>
+
+  <Teleport to="body">
+    <AssureActionAlertModal
+      v-if="showConfirmModal"
+      :show="showConfirmModal"
+      :titleMessage="confirmModalTitle"
+      :subMessage="confirmModalMessage"
+      :action="actionType"
+      @CANCEL="closeModal"
+      @CONFIRM="handleConfirmAction"
+    />
+  </Teleport>
 </template>
 
 <style scoped>
@@ -315,6 +381,14 @@ th.active .arrow {
   justify-content: center;
   overflow-x: auto;
   margin: 0 1rem;
+}
+.Buttton:hover {
+  scale: 115% !important;
+}
+
+.Buttton {
+  border: 0px;
+  background-color: transparent;
 }
 
 th,

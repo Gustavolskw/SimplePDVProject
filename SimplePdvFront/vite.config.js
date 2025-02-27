@@ -17,7 +17,7 @@ export default defineConfig({
   },
   server: {
     host: true, // Set the exact IP
-    port: 80,
+    port: 5173,
     strictPort: true,
   }
 })

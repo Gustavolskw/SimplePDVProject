@@ -90,9 +90,9 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import OrderModal from "../Modals/OrderOpenModal.vue";
-import axiosClient from "@/Client/AxiosClient";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import { prodcutTypeServcie } from "@/services/productTypeService";
 
 const props = defineProps({
   hasToken: {
@@ -120,9 +120,7 @@ onMounted(() => {
 
 async function getProductTypes() {
   try {
-    const response = await axiosClient.get("/product/type", {
-      timeout: 2000,
-    });
+    const response = await prodcutTypeServcie.getProductTypes();
     productTypes.value = response.data.data;
   } catch (error) {
     console.error(error);

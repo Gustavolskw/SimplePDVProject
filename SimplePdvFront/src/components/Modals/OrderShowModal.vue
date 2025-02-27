@@ -101,7 +101,7 @@
 </template>
 
 <script setup>
-import axiosClient from "@/Client/AxiosClient";
+import { orderService } from "@/services/orderService";
 import { formatCurrency } from "@/Util/Currency";
 import { ref } from "vue";
 
@@ -116,9 +116,7 @@ const order = ref(null);
 // Fetch order details by ID
 async function getOrderById(id) {
   try {
-    const response = await axiosClient.get(`/order/${id}`, {
-      timeout: 2000,
-    });
+    const response = await orderService.getOrderById(id);
     order.value = response.data.data;
     console.log("Order loaded:", response.data.data);
   } catch (error) {

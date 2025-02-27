@@ -16,8 +16,8 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
-import axiosClient from "@/Client/AxiosClient";
+import { onMounted } from "vue";
+import { productService } from "@/services/productService";
 import ProductCreationForm from "@/components/Forms/ProductCreationForm.vue";
 const props = defineProps({
   show: {
@@ -56,12 +56,7 @@ async function sendProductInsert(data) {
   }
 
   try {
-    const response = await axiosClient.post(`/product`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      timeout: 5000,
-    });
+    const response = await productService.createProduct(formData);
 
     emit("PORDUCT_CREATED", {
       status: response.status,

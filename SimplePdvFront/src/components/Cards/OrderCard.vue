@@ -79,11 +79,10 @@
 <script setup>
 import OrderShowModal from "../Modals/OrderShowModal.vue";
 import { formatCurrency } from "@/Util/Currency";
-import axiosClient from "@/Client/AxiosClient";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-
 import { ref } from "vue";
+import { orderService } from "@/services/orderService";
 
 const emit = defineEmits(["ORDER_RELOAD"]);
 
@@ -142,9 +141,7 @@ const props = defineProps({
 async function cancelOrder(id) {
   console.log("cancelar" + id);
   try {
-    const response = await axiosClient.delete(`/order/${id}/cancel`, null, {
-      timeout: 2000,
-    });
+    const response = await orderService.cancelOrder(id);
     emit("ORDER_RELOAD");
     console.log(response.data.message);
   } catch (error) {
@@ -155,9 +152,7 @@ async function cancelOrder(id) {
 async function endOrder(id) {
   console.log("finalizar" + id);
   try {
-    const response = await axiosClient.put(`/order/${id}/close`, null, {
-      timeout: 2000,
-    });
+    const response = await orderService.closeOrder(id);
     emit("ORDER_RELOAD");
     console.log(response.data.message);
   } catch (error) {

@@ -70,7 +70,7 @@
 
 <script setup>
 import { onMounted, ref, watch } from "vue";
-import axiosClient from "@/Client/AxiosClient";
+import { productService } from "@/services/productService";
 import ProductsGrid from "@/components/Grids/ProductsGrid.vue";
 import AlertModal from "@/components/Alerts/AlertModal.vue";
 import EditProductModal from "@/components/Modals/EditProductModal.vue";
@@ -93,13 +93,13 @@ const showAlertModal = ref();
 watch(
   searchQuery,
   () => {
-    getProducts();
+    fetchProducts();
   },
   { immediate: true }
 );
 
 onMounted(() => {
-  getProducts();
+  fetchProducts();
 });
 
 function handleProductInactivation(id) {
@@ -121,16 +121,14 @@ function searchProductByIdOnArray(id) {
 
 async function reactivateProduct(id) {
   try {
-    const response = await axiosClient.put(`/product/${id}/activate`, {
-      timeout: 5000,
-    });
+    const response = await productService.reactiveProduct(id);
     // Verificando se a resposta contém dados válidos
     console.log(response);
     showAlertModal.value = true;
     if (response.data && response.data.message && response.status == 200) {
       alertModalMessage.value = response.data.message;
       alertModalStatus.value = response.status;
-      getProducts();
+      fetchProducts();
     } else {
       alertModalMessage.value = response.data.message;
       alertModalStatus.value = response.status;
@@ -145,17 +143,14 @@ async function reactivateProduct(id) {
 
 async function inactivateProduct(id) {
   try {
-    const response = await axiosClient.delete(`/product/${id}`, {
-      timeout: 5000,
-    });
-    // Verificando se a resposta contém dados válidos
+    const response = await productService.inactivateProduct(id);
 
     console.log(response);
     showAlertModal.value = true;
     if (response.data && response.data.message && response.status == 200) {
       alertModalMessage.value = response.data.message;
       alertModalStatus.value = response.status;
-      getProducts();
+      fetchProducts();
     } else {
       alertModalMessage.value = response.data.message;
       alertModalStatus.value = response.status;
@@ -168,17 +163,15 @@ async function inactivateProduct(id) {
   }
 }
 
-async function getProducts() {
+async function fetchProducts() {
   loading.value = true;
   error.value = false;
 
   try {
-    const response = await axiosClient.get("/product", {
-      params: { query: searchQuery.value },
-      timeout: 5000,
+    const response = await productService.getProducts({
+      query: searchQuery.value,
     });
 
-    // Verificando se a resposta contém dados válidos
     if (response.data && response.data.data && response.data.data.content) {
       products.value = response.data.data.content;
     } else {
@@ -195,7 +188,7 @@ async function getProducts() {
 }
 
 const handleProductRelaod = (data) => {
-  getProducts();
+  fetchProducts();
   showEditModal.value = false;
   showCreationModal.value = false;
   showAlertModal.value = true;

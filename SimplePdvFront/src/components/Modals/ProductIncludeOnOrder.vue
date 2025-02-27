@@ -74,7 +74,7 @@
 </template>
 
 <script setup>
-import axiosClient from "@/Client/AxiosClient";
+import { productService } from "@/services/productService";
 import { formatCurrency } from "@/Util/Currency";
 import { ref, watch } from "vue";
 
@@ -121,12 +121,9 @@ async function includeProductOnOrder() {
   };
 
   try {
-    const response = await axiosClient.post(
-      `/order/${props.orderId}/include`,
-      payload,
-      {
-        timeout: 10000,
-      }
+    const response = await productService.includeOnOrder(
+      props.orderId,
+      payload
     );
     resetForm();
     emit("PRODUCT_INCLUDED_ACTION", {

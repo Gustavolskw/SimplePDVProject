@@ -22,7 +22,6 @@ import { ref } from "vue";
 const navBarState = ref();
 
 function handleColapseStateNav(data) {
-  console.log(data.state);
   navBarState.value = data.state;
 }
 </script>
@@ -83,7 +82,7 @@ function handleColapseStateNav(data) {
 
 @media (max-width: 600px) {
   .painel-conteudo {
-    padding-left: 4rem;
+    padding-left: 4.6rem;
   }
   .colapse-on-painel {
     padding-left: 3rem;

@@ -44,13 +44,12 @@
 </template>
 
 <script setup>
-import axiosClient from "@/Client/AxiosClient";
-
 import ProductsNavBar from "@/components/Navs/ProductsNavBar.vue";
 import ProductCard from "@/components/Cards/ProductCard.vue";
 import AlertModal from "@/components/Alerts/AlertModal.vue";
 import { useStore } from "vuex";
 import { ref, onMounted } from "vue";
+import { productService } from "@/services/productService";
 
 const alertModal = ref(false);
 const alertMessage = ref("");
@@ -76,33 +75,25 @@ function initializeState() {
   handleProductsCleanSearch();
 }
 
-async function getProducts() {
-  const filters = { ...filtersHead.value, status: true };
-  try {
-    const response = await axiosClient.get("/product", {
-      params: filters,
-      timeout: 2000,
-    });
-    if (response.data.data == null) {
-      products.value = null;
-      errorOnProductData.value = true;
-    } else {
-      products.value = response.data.data.content;
-      errorOnProductData.value = false;
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-function handleProductsSearch(filters) {
+async function handleProductsSearch(filters) {
   filtersHead.value = filters;
-  getProducts();
+  fecthProducts(filtersHead.value);
 }
 
-function handleProductsCleanSearch() {
-  filtersHead.value = null;
-  getProducts();
+const fecthProducts = async (data) => {
+  console.log(data);
+  try {
+    const response = await productService.getProducts(data, true);
+    products.value = response.data.data.content;
+  } catch (err) {
+    console.log(err);
+    products.value = null;
+    errorOnProductData.value = true;
+  }
+};
+
+async function handleProductsCleanSearch() {
+  fecthProducts(null);
 }
 function cleanFilters() {
   filtersHead.value = null;

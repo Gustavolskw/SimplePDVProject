@@ -89,7 +89,8 @@
 
 <script setup>
 import { ref } from "vue";
-import axiosClient from "@/Client/AxiosClient";
+import { userService } from "@/services/userService";
+import { orderService } from "@/services/orderService";
 defineProps({
   show: {
     type: Boolean,
@@ -104,16 +105,14 @@ const guide = ref();
 const tableNumber = ref();
 const guideName = ref();
 
-function getGuide(id) {
-  axiosClient
-    .get(`/user/${id}`)
-    .then(({ data }) => {
-      console.log(data);
-      guideName.value = data.data.username;
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+async function getGuide(id) {
+  try {
+    const response = await userService.getUserById(id);
+    guideName.value = response.data.data.username;
+  } catch (err) {
+    console.error(err);
+    guideName.value = null;
+  }
 }
 function handleGuideInputChange(event) {
   guideName.value = "";
@@ -139,12 +138,8 @@ async function sendOpenOrderRequest() {
     guide: guide.value,
   };
 
-  console.log(payload);
-
   try {
-    const response = await axiosClient.post("/order", payload, {
-      timeout: 2000,
-    });
+    const response = await orderService.openOrder(payload);
     console.log(response.data.data.orderId);
     emit("ORDER_OPENED", { orderId: response.data.data.orderId }); // Emit event only after a successful response
     cleanFormInputs();
