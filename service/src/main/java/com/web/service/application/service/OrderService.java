@@ -71,6 +71,7 @@ public class OrderService {
 
     public void excludeProductOnOrder(Long id, Long productId) {
         orderValidation.validateOrder(id);
+        orderValidation.validateUpdateProductOnOrder(productId, id);
         orderValidation.validateProductOnOrder(productId, id);
         productOrderService.excludeProduct(id, productId);
     }
@@ -104,8 +105,8 @@ public class OrderService {
         return order;
     }
 
-    public Page<Order> getOrdersByParam(String guide, String consumer, Integer table, Pageable pageable) {
-        Page<Order> listOfOrders = orderRepository.findByParams(consumer, guide, table, pageable);
+    public Page<Order> getOrdersByParam(String guide, String consumer, Integer table, Boolean status, Pageable pageable) {
+        Page<Order> listOfOrders = orderRepository.findByParams(consumer, guide, table, status, pageable);
         if(listOfOrders.isEmpty()){
             throw new ListEmptyException("Lista de pedidos esta vazia");
         }

@@ -46,11 +46,10 @@ public class ProductService {
     }
 
     public Page<Product> findProductsByParam(String name, Boolean status, Long type, Pageable pageable) {
-        // Append wildcards to the name parameter if not null
-        String searchName = (name != null) ? "%" + name + "%" : null;
+
 
         // Fetch paginated products using the repository method
-        Page<Product> products = productRepository.searchProductsByParam(status, searchName, type, pageable);
+        Page<Product> products = productRepository.searchProductsByParam(status, name, type, pageable);
 
         // Additional validations
         if (products.isEmpty()) {

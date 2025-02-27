@@ -72,8 +72,9 @@ public class OrderController {
     public ResponseEntity<ApiResponse> searchOrders(@PageableDefault(size = 20) Pageable pageable,
                                                     @RequestParam(name = "consumer", required = false) String consumerName,
                                                     @RequestParam(name = "guide", required = false) String guideName,
-                                                    @RequestParam(name = "table", required = false)Integer tableNumber){
-        Page<Order> responsePaged = orderService.getOrdersByParam(guideName,consumerName, tableNumber, pageable);
+                                                    @RequestParam(name = "table", required = false)Integer tableNumber,
+                                                    @RequestParam(name="status", required= false)Boolean status){
+        Page<Order> responsePaged = orderService.getOrdersByParam(guideName,consumerName, tableNumber, status, pageable);
 
         Page<OrderResponse> orderResponseTransformed =responsePaged.map(OrderResponse::new);
 

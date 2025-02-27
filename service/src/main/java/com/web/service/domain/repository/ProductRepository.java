@@ -19,14 +19,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     SELECT * FROM products p
     WHERE
     (:status IS NULL OR p.status = CAST(:status AS BOOLEAN))
-    AND (:name IS NULL OR p.name LIKE CONCAT('%', :name, '%'))
+    AND (:name IS NULL OR p.name ILIKE CONCAT('%', :name, '%'))
     AND (:type IS NULL OR p.type_id = CAST(:type AS BIGINT))
     """,
             countQuery = """
     SELECT COUNT(*) FROM products p
     WHERE
     (:status IS NULL OR p.status = CAST(:status AS BOOLEAN))
-    AND (:name IS NULL OR p.name LIKE CONCAT('%', :name, '%'))
+    AND (:name IS NULL OR p.name ILIKE CONCAT('%', :name, '%'))
     AND (:type IS NULL OR p.type_id = CAST(:type AS BIGINT))
     """)
     Page<Product> searchProductsByParam(@Param("status") Boolean status, @Param("name") String name, @Param("type") Long type, Pageable pageable);
