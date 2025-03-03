@@ -209,7 +209,7 @@ onUnmounted(() => {
   text-decoration: none;
   display: flex;
   align-items: center;
-  text-align: center;
+  text-align: start;
   width: 100%;
 }
 

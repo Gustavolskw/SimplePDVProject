@@ -26,6 +26,11 @@ export const orderService = {
         return await axiosClient.delete(`/order/${id}/cancel`, null, {
             timeout: 2000,
         });
+    },
+    updateProductOnOrder: async (id, product) => {
+        return await axiosClient.delete(`/order/${id}/ajust`, product, {
+            timeout: 2000,
+        });
     }
 
 

@@ -235,11 +235,15 @@ const handleEditOrder = (id) => {
               @click.prevent="
                 openConfirmationModal(entry.orderId, 'CLOSE_ORDER')
               "
-              v-if="entry.status == true"
+              v-if="entry.status == true && entry.productsInOrder > 0"
             >
               <i class="bi bi-check-circle text-success"></i>
             </button>
-            <button class="Buttton" disabled v-else>
+            <button
+              class="Buttton"
+              disabled
+              v-else-if="entry.status == false && entry.productsInOrder > 0"
+            >
               <i class="bi bi-check-circle-fill text-success"></i>
             </button>
 
@@ -255,7 +259,8 @@ const handleEditOrder = (id) => {
 
             <button
               class="Buttton"
-              @click.prevent="handleOrderEdit(entry.orderId)"
+              v-if="entry.status == true && entry.productsInOrder > 0"
+              @click.prevent="handleEditOrder(entry.orderId)"
             >
               <i class="bi bi-pencil-square fw-bolder fs-4 text-secondary"></i>
             </button>
