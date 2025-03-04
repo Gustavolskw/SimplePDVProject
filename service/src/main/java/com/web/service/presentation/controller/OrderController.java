@@ -33,17 +33,12 @@ public class OrderController {
         return ResponseEntity.ok().body(new ApiResponse("Produto adicionado ao pedido com sucesso!", null));
     }
     
-//    @PutMapping("/{id}/ajust")
-//    public ResponseEntity<ApiResponse> adjustItemOrder(@PathVariable Long id, @Valid @RequestBody OrderProductDto orderProductDto){
-//        orderService.adjustProductOnOrder(id, orderProductDto);
-//        return ResponseEntity.ok().body(new ApiResponse("Quantidade de produto ajustado com sucesso!", null));
-//    }
-//
-//    @PutMapping("/{id}/close")
-//    public ResponseEntity<ApiResponse> closeOrder(@PathVariable Long id){
-//        orderService.closeOrder(id);
-//        return ResponseEntity.ok().body(new ApiResponse("Ordem  de Pedido finalizado com sucesso!", null));
-//    }
+
+    @PutMapping("/{id}/close")
+    public ResponseEntity<ApiResponse> closeOrder(@PathVariable Long id){
+        orderService.closeOrder(id);
+        return ResponseEntity.ok().body(new ApiResponse("Ordem  de Pedido finalizado com sucesso!", null));
+    }
 
     @DeleteMapping("/{id}/cancel")
     public ResponseEntity<ApiResponse> cancelOrder(@PathVariable Long id){
@@ -56,6 +51,12 @@ public class OrderController {
 //        orderService.excludeProductOnOrder(id, prodtId);
 //        return ResponseEntity.ok().body(new ApiResponse("Produto excluido do pedido com sucesso!", null));
 //    }
+    //    @PutMapping("/{id}/ajust")
+//    public ResponseEntity<ApiResponse> adjustItemOrder(@PathVariable Long id, @Valid @RequestBody OrderProductDto orderProductDto){
+//        orderService.adjustProductOnOrder(id, orderProductDto);
+//        return ResponseEntity.ok().body(new ApiResponse("Quantidade de produto ajustado com sucesso!", null));
+//    }
+//
 
     @GetMapping()
     public ResponseEntity<ApiResponse> searchOrders(@PageableDefault(size = 20) Pageable pageable,

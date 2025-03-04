@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,22 +29,8 @@ public class ProductOrderService {
     }
 
     @Transactional
-    public void decrementProduct(Long orderId, Long productId) {
-        ProductOrder productOrderSel = getPorductOrderByPorductAndOrder(orderId, productId);
-        productOrderSel.setQuantity(productOrderSel.getQuantity() - 1);
-    }
-
-    @Transactional
-    public void adjustQuantityOnOrder(Long orderId, Long productId, Integer quantity) {
-        ProductOrder productOrderSel = getPorductOrderByPorductAndOrder(orderId, productId);
-        productOrderSel.setQuantity(quantity);
-    }
-
-    @Transactional
     public void increaseQuantityOnOrder(Long orderId, Long productId, Integer quantity) {
         ProductOrder productOrderSel = getPorductOrderByPorductAndOrder(orderId, productId);
-        System.out.println("Quantidade atual do produto: "+ productOrderSel.getQuantity());
-        System.out.println("Quantidade a inserir :"+quantity);
         if(quantity != null){
             productOrderSel.setQuantity(productOrderSel.getQuantity() + quantity);
         }else {
@@ -52,8 +39,8 @@ public class ProductOrderService {
     }
 
     @Transactional
-    public void excludeProduct(Long orderId,Long productId) {
-      productOrderRepository.deleteByOrderIdAndProductId(orderId,productId);
+    public void excludeProducts(Long orderId, List<Long> productsToRemove) {
+        productOrderRepository.deleteByOrderIdAndProductIdIn(orderId, productsToRemove);
     }
 
     @Transactional
