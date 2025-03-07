@@ -68,7 +68,5 @@ services:
       - ./SimplePdvFront:/app # Monta o código-fonte no container
       - /app/node_modules # Evita sobrescrever os node_modules
     command: npm run dev -- --host
-    depends_on:
-      - backend-cardapio
     restart: unless-stopped
 
